@@ -12,5 +12,4 @@ public interface SimilarRecipeDataAccessInterface {
      * @return the list of IDs of similar recipes to recipe with recipeID
      */
     ArrayList<Integer> getSimilarRecipeID(int recipeId);
-
 }
