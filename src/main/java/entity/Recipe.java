@@ -1,5 +1,6 @@
 package entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,6 +16,7 @@ public class Recipe {
     private final Integer cookingTime;
     private final String mealType;
     private final Integer servingSize;
+    private final List<Tag> tags;
 
     /**
      * Creates a Recipe entity with the given parameters.
@@ -26,6 +28,7 @@ public class Recipe {
      * @param cookingTime cooking duration in minutes
      * @param mealType meal category
      * @param servingSize number of servings
+     * @param tags number of tags
      *  @throws IllegalArgumentException if the password or name are empty
      */
     public Recipe(Integer recipeId,
@@ -35,7 +38,8 @@ public class Recipe {
                   String cuisine,
                   Integer cookingTime,
                   String mealType,
-                  Integer servingSize) {
+                  Integer servingSize,
+                  List<Tag> tags) {
         if (title == null || title.isEmpty()) {
             throw new IllegalArgumentException("Recipe title cannot be empty");
         }
@@ -50,6 +54,7 @@ public class Recipe {
         this.cookingTime = cookingTime;
         this.mealType = mealType;
         this.servingSize = servingSize;
+        this.tags = tags != null ? tags : List.of();
     }
 
     public Integer getRecipeId() { return recipeId; }
@@ -60,6 +65,7 @@ public class Recipe {
     public Integer getCookingTime() { return cookingTime; }
     public String getMealType() { return mealType; }
     public Integer getServingSize() { return servingSize; }
+    public List<Tag> getTags() { return tags; }
 
     @Override
     public String toString() {

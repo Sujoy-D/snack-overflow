@@ -33,9 +33,13 @@ build/
 
 ### VS Code ###
 .vscode/
+.idea/
 
 ### Mac OS ###
 .DS_Store
 
 ### Environment Variables ###
 .env
+
+### Users ###
+users.txt
