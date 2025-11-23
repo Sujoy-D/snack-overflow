@@ -2,6 +2,8 @@ package interface_adapter.navigation;
 
 import interface_adapter.ViewModel;
 
+import javax.swing.*;
+
 public class NavigationViewModel extends ViewModel {
     private String currentPage;
     private String username;

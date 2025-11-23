@@ -79,7 +79,7 @@ public class SidebarView extends JPanel {
         mealPlanningButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                parentFrame.dispose();
+                parentFrame.setVisible(false);
                 navigationController.execute("mealPlanning", username);
             }
         });
