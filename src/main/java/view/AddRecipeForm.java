@@ -1,9 +1,21 @@
 package view;
 
+import data_access.UserFileDataAccess;
+import entity.Ingredient;
+import java.util.List;
+import java.util.ArrayList;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
+import entity.Tag;
+import interface_adapter.add_recipe.AddRecipeController;
+import interface_adapter.add_recipe.AddRecipePresenter;
+import interface_adapter.add_recipe.AddRecipeViewModel;
+import use_case.add_recipe.AddRecipeInteractor;
+
+// TODO: place restrictions on input for each of the fields
 public class AddRecipeForm {
     private JLabel instructionsLabel;
 
@@ -54,7 +66,7 @@ public class AddRecipeForm {
         recipeInfoPanel.add(cuisineLabel);
         recipeInfoPanel.add(cuisineField);
 
-        JLabel cookingTimeLabel = new JLabel("Cooking Time:");
+        JLabel cookingTimeLabel = new JLabel("Cooking Time (in minutes):");
         cookingTimeLabel.setFont(labelFont);
         cookingTimeLabel.setForeground(labelColor);
         JTextField cookingTimeField = styledTextField();
@@ -80,11 +92,6 @@ public class AddRecipeForm {
         recipeInfoPanel.add(tagsLabel);
         recipeInfoPanel.add(tagsField);
 
-        servingSizeLabel = new JLabel("Serving Size:");
-        servingSizeLabel.setFont(labelFont);
-        servingSizeLabel.setForeground(labelColor);
-        servingSizeField = styledTextField();
-
         recipeInfoPanel.add(servingSizeLabel);
         recipeInfoPanel.add(servingSizeField);
 
@@ -98,6 +105,8 @@ public class AddRecipeForm {
         String[] columnNames = {"Ingredient", "Quantity", "Unit"};
         DefaultTableModel ingredientsModel = new DefaultTableModel(columnNames, 1);
         JTable ingredientsTable = new JTable(ingredientsModel);
+        ingredientsTable.setShowGrid(true);
+        ingredientsTable.setGridColor(Color.BLACK);
 
         JScrollPane ingredientsScrollPane = new JScrollPane(ingredientsTable);
         ingredientsPanel.add(ingredientsScrollPane, BorderLayout.CENTER);
@@ -105,6 +114,10 @@ public class AddRecipeForm {
         JPanel buttonPanel = new JPanel();
         buttonPanel.setBackground(new Color(240, 235, 255));
         JButton addIngredientButton = styledButton("Add Ingredient");
+
+
+        addIngredientButton.addActionListener(e -> ingredientsModel.addRow(new Object[]{"", "", ""}));
+
 
         buttonPanel.add(addIngredientButton);
 
@@ -137,10 +150,91 @@ public class AddRecipeForm {
         JPanel bottomButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         bottomButtonPanel.setBackground(new Color(240, 235, 255));
         JButton addButton = styledButton("Add Recipe");
+
+        addButton.addActionListener(e -> {
+            String title = recipeNameField.getText();
+
+            String servingSizeText = servingSizeField.getText().trim().replaceAll("[^0-9]", "");
+            int servingSize;
+            try {
+                servingSize = Integer.parseInt(servingSizeText);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(frame, "Please enter a valid serving size.");
+                return;
+            }
+            String cuisine = cuisineField.getText();
+            String cookingTimeText = cookingTimeField.getText().trim().replaceAll("[^0-9]", "");
+            int cookingTime;
+            try {
+                cookingTime = Integer.parseInt(cookingTimeText);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(frame, "Please enter a valid cooking time.");
+                return;
+            }
+            String mealType = mealTypeField.getText();
+            String tags = tagsField.getText();
+
+            // Collect ingredients from the table
+            List<Ingredient> ingredients = new ArrayList<>();
+            for (int i = 0; i < ingredientsModel.getRowCount(); i++) {
+                String name = (String) ingredientsModel.getValueAt(i, 0);
+                String quantity = (String) ingredientsModel.getValueAt(i, 1);
+                String unit = (String) ingredientsModel.getValueAt(i, 2);
+                if (name != null && !name.isEmpty()) {
+                    ingredients.add(new Ingredient(name, quantity, unit));
+                }
+            }
+
+            String tagText = tagsField.getText();  // e.g., "vegan, quick, healthy"
+            List<Tag> tagList = new ArrayList<>();
+
+            if (tagText != null && !tagText.isEmpty()) {
+                String[] split = tagText.split(",");
+
+                int tagIdCounter = 1;
+                for (String t : split) {
+                    String trimmed = t.trim();
+                    if (!trimmed.isEmpty()) {
+                        tagList.add(new Tag(tagIdCounter++, trimmed));
+                    }
+                }
+            }
+
+            String instructions = instructionsTextArea.getText();
+
+            AddRecipeViewModel viewModel = new AddRecipeViewModel();
+            AddRecipePresenter presenter = new AddRecipePresenter(viewModel);
+            UserFileDataAccess recipeDataAccess = new UserFileDataAccess(); // TODO: change this to mongoDB (I'm not quite sure how it works)
+            AddRecipeInteractor interactor = new AddRecipeInteractor(recipeDataAccess, presenter, "alice");
+
+            // TODO: Add username (not hard coded)
+
+            // Pass all data to the Controller
+            AddRecipeController controller = new AddRecipeController(interactor);
+
+            controller.addRecipe(
+                    recipeID,
+                    title,
+                    ingredients,
+                    instructions,
+                    cuisine,
+                    cookingTime,
+                    mealType,
+                    servingSize,
+                    tagList
+            );
+        });
+
+
         JButton cancelButton = styledButton("Cancel");
 
         bottomButtonPanel.add(addButton);
         bottomButtonPanel.add(cancelButton);
+
+        cancelButton.addActionListener(e -> {
+            // TODO: Link this button to the main app view or close this popup properly
+            frame.dispose(); // temporary: just closes the popup
+        });
 
         mainPanel.add(bottomButtonPanel);
     }

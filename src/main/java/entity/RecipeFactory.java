@@ -11,7 +11,7 @@ public class RecipeFactory {
     public Recipe create(
             Integer recipeId,
             String title,
-            List<String> ingredients,
+            List<Ingredient> ingredients,
             String instructions,
             String cuisine,
             Integer cookingTime,
@@ -20,7 +20,7 @@ public class RecipeFactory {
             List<Tag> tags
     ) {
         List<Tag> tempTags = tags != null ? tags : new ArrayList<>();
-        return new Recipe(recipeId, title, ingredients, instructions, cuisine, cookingTime, mealType, servingSize, tempTags);
+        return new Recipe(recipeId, ingredients, title, instructions, cuisine, cookingTime, mealType, servingSize, tempTags);
     }
 
     /*
@@ -28,7 +28,7 @@ public class RecipeFactory {
      */
     public Recipe create(Integer recipeId,
                          String title,
-                         List<String> ingredients,
+                         List<Ingredient> ingredients,
                          String instructions,
                          String cuisine,
                          Integer cookingTime,

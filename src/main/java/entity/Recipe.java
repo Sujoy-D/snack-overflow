@@ -1,6 +1,5 @@
 package entity;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -10,7 +9,7 @@ public class Recipe {
 
     private final Integer recipeId;
     private final String title;
-    private final List<String> ingredients;
+    private final List<Ingredient> ingredients;
     private final String instructions;
     private final String cuisine;
     private final Integer cookingTime;
@@ -20,20 +19,20 @@ public class Recipe {
 
     /**
      * Creates a Recipe entity with the given parameters.
-     * @param recipeId recipe ID
-     * @param title name of the recipe
-     * @param ingredients list of ingredients
+     *
+     * @param recipeId     recipe ID
+     * @param ingredients  list of ingredients
+     * @param title        name of the recipe
      * @param instructions cooking instructions
-     * @param cuisine type of cuisine
-     * @param cookingTime cooking duration in minutes
-     * @param mealType meal category
-     * @param servingSize number of servings
-     * @param tags number of tags
-     *  @throws IllegalArgumentException if the password or name are empty
+     * @param cuisine      type of cuisine
+     * @param cookingTime  cooking duration in minutes
+     * @param mealType     meal category
+     * @param servingSize  number of servings
+     * @param tags         number of tags
+     * @throws IllegalArgumentException if the password or name are empty
      */
     public Recipe(Integer recipeId,
-                  String title,
-                  List<String> ingredients,
+                  List<Ingredient> ingredients, String title,
                   String instructions,
                   String cuisine,
                   Integer cookingTime,
@@ -59,7 +58,7 @@ public class Recipe {
 
     public Integer getRecipeId() { return recipeId; }
     public String getTitle() { return title; }
-    public List<String> getIngredients() { return ingredients; }
+    public List<Ingredient> getIngredients() { return ingredients; }
     public String getInstructions() { return instructions; }
     public String getCuisine() { return cuisine; }
     public Integer getCookingTime() { return cookingTime; }
