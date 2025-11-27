@@ -9,7 +9,7 @@ public class SimilarRecipesState {
 
     private String errorMessage = null;
 
-    public List<Integer> getMealPlan() {
+    public List<Integer> getSimilarRecipes() {
         return similarRecipes;
     }
 
