@@ -1,5 +1,6 @@
 package data_access;
 
+import gateways.JavaHttpGateway;
 import io.github.cdimascio.dotenv.Dotenv;
 import okhttp3.*;
 import org.json.JSONArray;
@@ -11,44 +12,28 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class DBSimilarRecipesDataAccessObject implements SimilarRecipeDataAccessInterface {
-    private static final String CONTENT_TYPE_LABEL = "Content-Type";
-    private static final String CONTENT_TYPE_JSON = "application/json";
+    private final JavaHttpGateway httpGateway;
+
+    public DBSimilarRecipesDataAccessObject(JavaHttpGateway httpGateway) {
+        this.httpGateway = httpGateway;
+    }
+
 
     @Override
-    public ArrayList<Integer> getSimilarRecipeID(int recipeID) {
+    public ArrayList<Integer> getSimilarRecipeID(int recipeID) throws Exception {
+        String baseURL = String.format("https://api.spoonacular.com/recipes/%s/similar?apiKey", recipeID);
+        String response = httpGateway.get(baseURL);
+        final JSONArray responseBody = new JSONArray(response);
 
-        // Loading dotenv for API key.
-        Dotenv dotenv = Dotenv.load();
+        final ArrayList<Integer> similarRecipeID = new ArrayList<>();
 
-        // API call to get similar recipes to recipeID.
-        final OkHttpClient client = new OkHttpClient().newBuilder().build();
-        final Request request = new Request.Builder()
-                .url(String.format("https://api.spoonacular.com/recipes/%s/similar?apiKey=%s", recipeID, dotenv.get("API_KEY")))
-                .method("GET", null)
-                .addHeader(CONTENT_TYPE_LABEL, CONTENT_TYPE_JSON)
-                .build();
-        try {
-            final Response response = client.newCall(request).execute();
+        if (!responseBody.isEmpty()) {
 
-                final JSONArray responseBody = new JSONArray(response.body().string());
-
-                if (!responseBody.isEmpty()) {
-                    final ArrayList<Integer> similarRecipeID = new ArrayList<>();
-
-                    for (int i = 0; i < responseBody.length(); i++) {
-                        JSONObject recipe = responseBody.getJSONObject(i);
-                        similarRecipeID.add(recipe.getInt("id"));
-                        }
-
-                    return similarRecipeID;
-                }
-                else {
-                    // invalid API call - TODO: make a dedicated exception.
-                    throw new RuntimeException();
-                }
+            for (int i = 0; i < responseBody.length(); i++) {
+                JSONObject recipe = responseBody.getJSONObject(i);
+                similarRecipeID.add(recipe.getInt("id"));
             }
-        catch (IOException | JSONException ex) {
-            throw new RuntimeException(ex);
         }
+        return similarRecipeID;
     }
 }
