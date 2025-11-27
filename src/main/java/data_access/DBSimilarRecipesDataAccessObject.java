@@ -1,14 +1,10 @@
 package data_access;
 
 import gateways.JavaHttpGateway;
-import io.github.cdimascio.dotenv.Dotenv;
 import okhttp3.*;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import use_case.similar_recipes.SimilarRecipeDataAccessInterface;
-
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class DBSimilarRecipesDataAccessObject implements SimilarRecipeDataAccessInterface {
