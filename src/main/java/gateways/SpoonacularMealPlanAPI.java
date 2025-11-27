@@ -1,14 +1,13 @@
-package data_access;
+package gateways;
 
-import gateways.JavaHttpGateway;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import use_case.generate_meal_plan.MealPlanDataAccessInterface;
 
 import java.util.*;
 
 /**
- * Real implementation of MealPlanDataAccessInterface
- * Calls the Spoonacular meal planner API.
+ * Gateway that calls the Spoonacular meal planner API.
  */
 public class SpoonacularMealPlanAPI implements MealPlanDataAccessInterface {
 
