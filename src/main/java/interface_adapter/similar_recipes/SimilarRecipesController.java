@@ -1,5 +1,4 @@
-package interface_adapter;
-
+package interface_adapter.similar_recipes;
 
 import use_case.similar_recipes.SimilarRecipesInputBoundary;
 import use_case.similar_recipes.SimilarRecipesInputData;
