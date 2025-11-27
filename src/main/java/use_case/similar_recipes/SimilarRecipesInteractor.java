@@ -1,5 +1,7 @@
 package use_case.similar_recipes;
 
+import data_access.SimilarRecipeDataAccessInterface;
+
 public class SimilarRecipesInteractor implements SimilarRecipesInputBoundary {
     private final SimilarRecipeDataAccessInterface similarRecipesDataAccessObject;
     private final SimilarRecipesOutputBoundary similarRecipesPresenter;

@@ -1,4 +1,4 @@
-package use_case.similar_recipes;
+package data_access;
 
 import java.util.ArrayList;
 
