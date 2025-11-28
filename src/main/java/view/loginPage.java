@@ -7,13 +7,32 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.*;
-import java.util.Scanner;
+import data_access.UserRepository;
 
 
 public class loginPage {
-    private static final String USER_FILE = "users.txt";
+    private static final UserRepository userRepository = new UserRepository();
     private static ViewManager viewManager;
+    
+    // Show themed message dialog
+    private static void showThemedMessage(Component parent, String message, String title, int messageType) {
+        UIManager.put("OptionPane.background", new Color(240, 235, 255));
+        UIManager.put("Panel.background", new Color(240, 235, 255));
+        UIManager.put("OptionPane.messageForeground", new Color(75, 0, 130));
+        UIManager.put("Button.background", new Color(138, 43, 226));
+        UIManager.put("Button.foreground", Color.WHITE);
+        UIManager.put("Button.focus", new Color(147, 112, 219));
+        
+        JOptionPane.showMessageDialog(parent, message, title, messageType);
+        
+        // Reset UI defaults
+        UIManager.put("OptionPane.background", null);
+        UIManager.put("Panel.background", null);
+        UIManager.put("OptionPane.messageForeground", null);
+        UIManager.put("Button.background", null);
+        UIManager.put("Button.foreground", null);
+        UIManager.put("Button.focus", null);
+    }
     
     // Navigate to home page
     private static void goToHomePage(String username, JFrame loginFrame) {
@@ -30,28 +49,26 @@ public class loginPage {
     }
     
     // Save user credentials
-    private static void saveUser(String username, String password) {
-        try (FileWriter fw = new FileWriter(USER_FILE, true)) {
-            fw.write(username + ":" + password + "\n");
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Error saving user data");
+    private static void saveUser(String username, String password, String email) {
+        try {
+            userRepository.saveUser(username, password, email);
+        } catch (RuntimeException e) {
+            showThemedMessage(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
     
     // Validate login credentials
     private static boolean validateLogin(String username, String password) {
-        try (Scanner scanner = new Scanner(new File(USER_FILE))) {
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                String[] parts = line.split(":", 2);
-                if (parts.length == 2 && parts[0].equals(username) && parts[1].equals(password)) {
-                    return true;
-                }
+        try {
+            boolean isValid = userRepository.validateLogin(username, password);
+            if (isValid) {
+                userRepository.updateLastLogin(username);
             }
-        } catch (FileNotFoundException e) {
-            // File doesn't exist yet, no users registered
+            return isValid;
+        } catch (Exception e) {
+            showThemedMessage(null, "Database error occurred", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
         }
-        return false;
     }
     
     // Show sign up page
@@ -148,8 +165,9 @@ public class loginPage {
                         return;
                     }
                     
-                    saveUser(username, password);
-                    JOptionPane.showMessageDialog(frame, "Account created successfully!");
+                    saveUser(username, password, ""); // Empty email for now
+                    showThemedMessage(frame, "Account created successfully!", 
+                                    "Success", JOptionPane.INFORMATION_MESSAGE);
                     frame.dispose();
                     main(new String[]{}); // Return to login page
                 }
