@@ -14,5 +14,7 @@ public interface CheckoutRecipeDataAccessInterface {
      * Returns the information of the recipe provided.
      * @return the information of the recipe provided as a Hashmap of information title to data.
      */
-    Map<String, Object> getRecipeInfo(Recipe recipe);
+    Map<String, String> getRecipeInfo(Recipe recipe);
+
+    ArrayList<ArrayList<String>> getRecipeIngredients(Recipe recipe);
 }

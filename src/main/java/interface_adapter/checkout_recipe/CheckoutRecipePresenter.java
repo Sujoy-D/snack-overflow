@@ -15,6 +15,7 @@ public class CheckoutRecipePresenter implements CheckoutRecipeOutputBoundary {
     public void prepareSuccessView(CheckoutRecipeOutputData outputData) {
         CheckoutRecipeState newState = new CheckoutRecipeState();
         newState.setRecipeInfo(outputData.getRecipeInfo());
+        newState.setRecipeIngredients(outputData.getRecipeIngredients());
 
         // Update ViewModel
         checkoutRecipeViewModel.setState(newState);

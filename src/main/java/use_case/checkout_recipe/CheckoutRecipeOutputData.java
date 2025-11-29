@@ -1,5 +1,7 @@
 package use_case.checkout_recipe;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -7,13 +9,19 @@ import java.util.Map;
  */
 public class CheckoutRecipeOutputData {
 
-    private final Map<String, Object> recipeInfo;
+    private final Map<String, String> recipeInfo;
+    private final List<ArrayList<String>> recipeIngredients;
 
-    public CheckoutRecipeOutputData(Map<String, Object> recipeInfo) {
+    public CheckoutRecipeOutputData(Map<String, String> recipeInfo, List<ArrayList<String>> recipeIngredients) {
         this.recipeInfo = recipeInfo;
+        this.recipeIngredients = recipeIngredients;
     }
 
-    public Map<String, Object> getRecipeInfo() {
+    public Map<String, String> getRecipeInfo() {
         return recipeInfo;
+    }
+
+    public List<ArrayList<String>> getRecipeIngredients() {
+        return recipeIngredients;
     }
 }

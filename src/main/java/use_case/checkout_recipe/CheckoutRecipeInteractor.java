@@ -2,6 +2,7 @@ package use_case.checkout_recipe;
 
 import data_access.CheckoutRecipeDataAccessInterface;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 public class CheckoutRecipeInteractor implements CheckoutRecipeInputBoundary {
@@ -17,9 +18,11 @@ public class CheckoutRecipeInteractor implements CheckoutRecipeInputBoundary {
 
     @Override
     public void execute(CheckoutRecipeInputData checkoutRecipeInputData) {
-        Map<String, Object> recipeInfo = checkoutRecipeDAO.getRecipeInfo(checkoutRecipeInputData.getRecipe());
+        Map<String, String> recipeInfo = checkoutRecipeDAO.getRecipeInfo(checkoutRecipeInputData.getRecipe());
+        ArrayList<ArrayList<String>> recipeIngredients =
+                checkoutRecipeDAO.getRecipeIngredients(checkoutRecipeInputData.getRecipe());
 
-        CheckoutRecipeOutputData outputData = new CheckoutRecipeOutputData(recipeInfo);
+        CheckoutRecipeOutputData outputData = new CheckoutRecipeOutputData(recipeInfo, recipeIngredients);
 
         checkoutRecipePresenter.prepareSuccessView(outputData);
     }
