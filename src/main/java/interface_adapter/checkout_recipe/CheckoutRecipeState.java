@@ -9,6 +9,7 @@ public class CheckoutRecipeState {
 
     private Map<String, String> recipeInfo = new HashMap<>();
     private List<ArrayList<String>> recipeIngredients = new ArrayList<>();
+    private ArrayList<String> recipeTags = new ArrayList<>();
     private String errorMessage = null;
 
     public Map<String, String> getRecipeInfo() {
@@ -25,6 +26,14 @@ public class CheckoutRecipeState {
 
     public void setRecipeIngredients(List<ArrayList<String>> recipeIngredients) {
         this.recipeIngredients = recipeIngredients;
+    }
+
+    public List<String> getRecipeTags() {
+        return recipeTags;
+    }
+
+    public void setRecipeTags(List<String> recipeTags) {
+        this.recipeTags = (ArrayList<String>) recipeTags;
     }
 
     public String getErrorMessage() {
