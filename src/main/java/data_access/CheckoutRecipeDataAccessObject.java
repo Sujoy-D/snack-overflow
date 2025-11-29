@@ -1,6 +1,8 @@
 package data_access;
 
+import entity.Ingredient;
 import entity.Recipe;
+import entity.Tag;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,9 +30,25 @@ public class CheckoutRecipeDataAccessObject implements CheckoutRecipeDataAccessI
         final ArrayList<ArrayList<String>> recipeIngredients = new ArrayList<>();
 
         for (Ingredient ingredient : recipe.getIngredients()) {
-            recipeIngredients.add(new ArrayList<ArrayList<String>>(ingredient.name, ingredient.quantity, ingredient.unit));
+            ArrayList<String> ingredientData = new ArrayList<>();
+            ingredientData.add(ingredient.getName());
+            ingredientData.add(ingredient.getQuantity());
+            ingredientData.add(ingredient.getUnit());
+
+            recipeIngredients.add(ingredientData);
         }
 
         return recipeIngredients;
+    }
+
+    @Override
+    public ArrayList<String> getRecipeTags(Recipe recipe) {
+        final ArrayList<String> recipeTags = new ArrayList<>();
+
+        for (Tag tag : recipe.getTags()) {
+            recipeTags.add(tag.getName());
+        }
+
+        return recipeTags;
     }
 }

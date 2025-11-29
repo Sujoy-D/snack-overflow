@@ -18,11 +18,16 @@ public class CheckoutRecipeInteractor implements CheckoutRecipeInputBoundary {
 
     @Override
     public void execute(CheckoutRecipeInputData checkoutRecipeInputData) {
-        Map<String, String> recipeInfo = checkoutRecipeDAO.getRecipeInfo(checkoutRecipeInputData.getRecipe());
+        Map<String, String> recipeInfo =
+                checkoutRecipeDAO.getRecipeInfo(checkoutRecipeInputData.getRecipe());
+
         ArrayList<ArrayList<String>> recipeIngredients =
                 checkoutRecipeDAO.getRecipeIngredients(checkoutRecipeInputData.getRecipe());
 
-        CheckoutRecipeOutputData outputData = new CheckoutRecipeOutputData(recipeInfo, recipeIngredients);
+        ArrayList<String> recipeTags =
+                checkoutRecipeDAO.getRecipeTags(checkoutRecipeInputData.getRecipe());
+
+        CheckoutRecipeOutputData outputData = new CheckoutRecipeOutputData(recipeInfo, recipeIngredients, recipeTags);
 
         checkoutRecipePresenter.prepareSuccessView(outputData);
     }
