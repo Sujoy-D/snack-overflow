@@ -1,26 +1,26 @@
 # SnackOverflow ~ _Your next best dish_
 
-We are the **SnackOverflow Team**. Our goal? Make you find your next meal in an intuitive app.
+We are the SnackOverflow Team! Our goal? Make you find your next meal in an intuitive app.
 
 ## What for?
 
-- _Have **specific ingredients left** and wondering how to use them?_
+- _Have specific ingredients left and wondering how to use them?_
 
-☑ You can look up recipes by ingredient and adjust to
+You can look up recipes by ingredient and adjust to
 any portion size you want!
 
-- _What if you're **in a rush**, or looking for recipes from a **certain country or region**?_
+- _What if you're in a rush, or looking for recipes from a certain country or region?_
 
-☑ We got you covered! SnackOverflow offers a plethora of **filter options** to match your needs at any given time.
+We got you covered! SnackOverflow offers filter options to match your needs at any given time.
 
 - _Love the recipe you're looking at, but wonder if there's any similar ones?_
 
-☑ SnackOverflow has a built-in similarity algorithm to determine the dishes that are most similar to the recipe on your
+SnackOverflow has a built-in similarity algorithm to determine the dishes that are most similar to the recipe on your
 screen!
 
-- _Well, this is great and all, but it's not very useful if you can't **save recipes** anywhere..._
+- _Well, this is great and all, but it's not very useful if you can't save recipes anywhere..._
 
-☑ We thought about that too! SnackOverflow provides an **account system**, with which you can add recipes to your
+We thought about that too! SnackOverflow provides an account system, with which you can add recipes to your
 "dishlist" to keep them for later!
 
 
@@ -40,6 +40,7 @@ screen!
     - [ ] Use Case 4
     - [ ] Use Case 5
     - [ ] Use Case 6
+    - [ ] Use Case 7
 - [ ] Code clean-up/refactoring
 
 ## User Stories
@@ -60,6 +61,9 @@ screen!
 
 
 6) As a user, I want to adjust serving sizes and have ingredient quantities automatically update.
+
+
+7) As a user, I want to be able to generate meal plans to match my nutrition requirements
 
 ---
 ## [User Story] Time-permitting Ideas
