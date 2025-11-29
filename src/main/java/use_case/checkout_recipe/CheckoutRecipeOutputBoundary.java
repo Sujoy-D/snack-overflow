@@ -8,5 +8,5 @@ public interface CheckoutRecipeOutputBoundary {
 
     void prepareSuccessView(CheckoutRecipeOutputData outputData);
 
-    void prepareFailView(String errorMessage);
+    // TODO: does this require a fail view? there should not be an error when the user decides to see a specific recipe
 }
