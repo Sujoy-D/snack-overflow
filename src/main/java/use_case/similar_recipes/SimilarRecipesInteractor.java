@@ -17,7 +17,12 @@ public class SimilarRecipesInteractor implements SimilarRecipesInputBoundary {
         // TODO: potential expansion by adding recipes and similars to cache
 
         try {
-            similarRecipesDataAccessObject.getSimilarRecipeID(similarRecipesInputData.getRecipeID());
+
+            SimilarRecipesOutputData outputData = new SimilarRecipesOutputData(
+                    similarRecipesDataAccessObject.getSimilarRecipeID(similarRecipesInputData.getRecipeID()));
+
+            similarRecipesPresenter.prepareSuccessView(outputData);
+
         } catch (Exception e) {
             similarRecipesPresenter.prepareFailView("Failed to get similar recipes: " + e.getMessage());
         }
