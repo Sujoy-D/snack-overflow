@@ -9,22 +9,28 @@ import java.util.Map;
 public class CheckoutRecipeDataAccessObject implements CheckoutRecipeDataAccessInterface {
 
     @Override
-    public Map<String, Object> getRecipeInfo(Recipe recipe) {
-        final Map<String, Object> recipeInfo = new HashMap<>();
+    public Map<String, String> getRecipeInfo(Recipe recipe) {
+        final Map<String, String> recipeInfo = new HashMap<>();
 
-        // Getting recipe info - strings
         recipeInfo.put("recipeID", recipe.getRecipeId().toString());
         recipeInfo.put("name", recipe.getTitle());
-        recipeInfo.put("cooking time", recipe.getCookingTime());
+        recipeInfo.put("cooking time", recipe.getCookingTime().toString());
         recipeInfo.put("cuisine", recipe.getCuisine());
         recipeInfo.put("meal type", recipe.getMealType());
         recipeInfo.put("instructions", recipe.getInstructions());
-        recipeInfo.put("serving size", recipe.getServingSize());
-
-        // Getting recipe info - Lists
-        recipeInfo.put("ingredients", recipe.getIngredients());
-        recipeInfo.put("tags", recipe.getTags());
+        recipeInfo.put("serving size", recipe.getServingSize().toString());
 
         return recipeInfo;
+    }
+
+    @Override
+    public ArrayList<ArrayList<String>> getRecipeIngredients(Recipe recipe) {
+        final ArrayList<ArrayList<String>> recipeIngredients = new ArrayList<>();
+
+        for (Ingredient ingredient : recipe.getIngredients()) {
+            recipeIngredients.add(new ArrayList<ArrayList<String>>(ingredient.name, ingredient.quantity, ingredient.unit));
+        }
+
+        return recipeIngredients;
     }
 }
