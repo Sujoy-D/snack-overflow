@@ -1,7 +1,5 @@
 package view;
 
-import entity.Recipe;
-import entity.Ingredient;
 import interface_adapter.checkout_recipe.CheckoutRecipeController;
 import interface_adapter.checkout_recipe.CheckoutRecipeState;
 import interface_adapter.checkout_recipe.CheckoutRecipeViewModel;
@@ -39,8 +37,7 @@ public class CheckoutRecipeView extends JPanel implements PropertyChangeListener
     public CheckoutRecipeView(String username,
                               NavigationController navigationController,
                               CheckoutRecipeController checkoutRecipeController,
-                              CheckoutRecipeViewModel checkoutRecipeViewModel,
-                              Recipe recipe) {
+                              CheckoutRecipeViewModel checkoutRecipeViewModel) {
 
         this.username = username;
         this.navigationController = navigationController;
@@ -109,20 +106,54 @@ public class CheckoutRecipeView extends JPanel implements PropertyChangeListener
     public void propertyChange(PropertyChangeEvent evt) {
         CheckoutRecipeState state = (CheckoutRecipeState) evt.getNewValue();
 
+        // TODO: add stuff to display when there is an error - this would require making a fail view for this use case
         if (state.getErrorMessage() != null) {
-            // TODO: add stuff to display when there is an error
             return;
         }
 
         Map<String, String> recipeInfo = state.getRecipeInfo();
 
-        titleLabel.setText(recipeInfo.get("title").toString());
+        titleLabel.setText(recipeInfo.get("title"));
 
-        instructionsLabel.setText(recipeInfo.get("instructions").toString());
-        // TODO: bit of an issue here: calling entity arguments within the view
-        //for () {
-        //    JLabel ingredientLabel = new JLabel();
+        instructionsLabel.setText(recipeInfo.get("instructions"));
 
-        //}
+        cuisineLabel.setText(recipeInfo.get("cuisine"));
+
+        cookingTimeLabel.setText(recipeInfo.get("cooking time"));
+
+        mealTypeLabel.setText(recipeInfo.get("meal type"));
+
+        servingSizeLabel.setText(recipeInfo.get("serving size"));
+
+        updateIngredientsPanel(state);
+        updateTagsLabel(state);
+
+    }
+
+    private void updateTagsLabel(CheckoutRecipeState state) {
+        ArrayList<String> recipeTags = (ArrayList<String>) state.getRecipeTags();
+        StringBuilder tagString = new StringBuilder();
+
+        for (String tag : recipeTags) {
+            tagString.append(tag).append(", ");
+        }
+        tagString.delete(tagString.length() - 2, tagString.length()); // Remove the last ", " appended in the loop
+
+        tagsLabel.setText(tagString.toString());
+    }
+
+    private void updateIngredientsPanel(CheckoutRecipeState state) {
+        for (ArrayList<String> ingredientData : state.getRecipeIngredients()) {
+            JLabel ingredientLabel = new JLabel();
+
+            // Indices: 0 = name, 1 = quantity, 2 = unit
+            ingredientLabel.setText(
+                    ingredientData.get(0) + " : "
+                    + ingredientData.get(1) + " "
+                    + ingredientData.get(2)
+            );
+
+            ingredientsPanel.add(ingredientLabel);
+        }
     }
 }
