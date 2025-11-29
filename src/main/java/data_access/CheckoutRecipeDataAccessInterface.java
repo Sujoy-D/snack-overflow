@@ -17,4 +17,6 @@ public interface CheckoutRecipeDataAccessInterface {
     Map<String, String> getRecipeInfo(Recipe recipe);
 
     ArrayList<ArrayList<String>> getRecipeIngredients(Recipe recipe);
+
+    ArrayList<String> getRecipeTags(Recipe recipe);
 }
