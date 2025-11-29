@@ -5,5 +5,6 @@ package use_case.tagging;
  * The Presenter implements this interface
  */
 public interface AddTagOutputBoundary {
-    void present(AddTagOutputData tagData);
+    void prepareSuccessView(AddTagOutputData tagData);
+    void prepareFailView(String errorMessage);
 }

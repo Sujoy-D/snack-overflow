@@ -7,17 +7,16 @@ import javax.swing.*;
 import java.awt.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
-import java.util.ArrayList;
+import java.util.*;
 
 import use_case.tagging.AddTagInteractor;
 import interface_adapter.tagging.AddTagPresenter;
 import data_access.TaggingDataAccessInterface;
-import entity.Recipe;
-import entity.Tag;
 
 
 public class AddTagView extends JPanel implements PropertyChangeListener {
     private static final String FONT_ARIAL = "Arial";
+    private final String username;
     private final int recipeId;
     private final AddTagController addTagController;
     private final TaggingViewModel taggingViewModel;
@@ -25,8 +24,9 @@ public class AddTagView extends JPanel implements PropertyChangeListener {
     private final JTextField tagNameTextField;
     private final JLabel message;
 
-    public AddTagView(JFrame tagFrame, int recipeId, AddTagController addTagController, TaggingViewModel taggingViewModel) {
+    public AddTagView(JFrame tagFrame, String username, int recipeId, AddTagController addTagController, TaggingViewModel taggingViewModel) {
         this.tagFrame = tagFrame;
+        this.username = username;
         this.recipeId = recipeId;
         this.addTagController = addTagController;
         this.taggingViewModel = taggingViewModel;
@@ -90,14 +90,14 @@ public class AddTagView extends JPanel implements PropertyChangeListener {
         tagNameTextField.addActionListener(e -> submitTag());
     }
 
-    private static void showAddTagPage(int recipeId, AddTagController addTagController,
+    private static void showAddTagPage(String username, int recipeId, AddTagController addTagController,
                                        TaggingViewModel taggingViewModel) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Add Tag");
             frame.setMinimumSize(new Dimension(480, 360));
             frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             frame.setLocationRelativeTo(null);
-            AddTagView view = new AddTagView(frame, recipeId, addTagController, taggingViewModel);
+            AddTagView view = new AddTagView(frame, username, recipeId, addTagController, taggingViewModel);
             frame.setContentPane(view);
             frame.pack();
             frame.setVisible(true);
@@ -109,7 +109,7 @@ public class AddTagView extends JPanel implements PropertyChangeListener {
             message.setText("Please enter tag name");
             return;
         }
-        addTagController.addTag(recipeId, newTagName);
+        addTagController.addTag(username, recipeId, newTagName);
     }
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
@@ -128,32 +128,42 @@ public class AddTagView extends JPanel implements PropertyChangeListener {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
 
-            // Create temporary fake DAO for testing
-            TaggingDataAccessInterface fakeDao = new TaggingDataAccessInterface() {
+            TaggingDataAccessInterface temp = new TaggingDataAccessInterface() {
+                private final Map<String, Map<Integer, java.util.List<String>>> store = new HashMap<>();
+
                 @Override
-                public Recipe getRecipebyId(int id) {
-                    ArrayList<String> ingredients = new ArrayList<>();
-                    ingredients.add("Test 1");
-                    ingredients.add("Test 2");
-                    ArrayList<Tag> tags = new ArrayList<>();
-                    return new Recipe(id, "Test Recipe", ingredients, "cook it", "canadian :)",
-                            10, "Dinner", 1, tags);
+                public void addTagToRecipe(String username, int recipeId, String tagName) {
+                    Map<Integer, java.util.List<String>> userMap = store.computeIfAbsent(username, k -> new HashMap<>());
+                    java.util.List<String> tags = userMap.computeIfAbsent(recipeId, k -> new ArrayList<>());
+                    if (!tags.contains(tagName)) {
+                        tags.add(tagName);
+                    }
+                    System.out.println("Saved tag" + tagName + "for" + username + "on recipe:" + recipeId);
+
                 }
 
 
                 @Override
-                public void saveRecipe(Recipe recipe) {
-                    System.out.println("Saved recipe with tags: " + recipe.getTags());
+                public java.util.List<String> getTagsForRecipe(String username, int recipeId) {
+                    Map<Integer, java.util.List<String>> userMap = store.get(username);
+                    if (userMap == null) {
+                        return new ArrayList<>();
+                    }
+                    java.util.List<String> tags = userMap.get(recipeId);
+                    return tags == null ? new ArrayList<>() : new ArrayList<>(tags);
+
                 }
             };
 
             // Build the clean-arch stack
-            TaggingViewModel vm = new TaggingViewModel();
-            AddTagPresenter presenter = new AddTagPresenter(vm);
-            AddTagInteractor interactor = new AddTagInteractor(fakeDao, presenter);
+            TaggingViewModel viewModel = new TaggingViewModel();
+            AddTagPresenter presenter = new AddTagPresenter(viewModel);
+            AddTagInteractor interactor = new AddTagInteractor(temp, presenter);
             AddTagController controller = new AddTagController(interactor);
 
-            // Temporary frame for testing
+            String testUsername = "Harold";
+            int testRecipeId = 123;
+
             JFrame frame = new JFrame("Temporary Recipe Page");
             frame.setMinimumSize(new Dimension(720, 480));
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -174,7 +184,7 @@ public class AddTagView extends JPanel implements PropertyChangeListener {
 
             // open the real AddTag popup
             createTagButton.addActionListener(e ->
-                    AddTagView.showAddTagPage(123, controller, vm)
+                    AddTagView.showAddTagPage(testUsername, testRecipeId, controller, viewModel)
             );
 
             mainPanel.add(createTagButton, gbc);

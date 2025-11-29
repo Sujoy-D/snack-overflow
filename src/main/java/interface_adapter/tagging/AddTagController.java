@@ -10,7 +10,9 @@ public class AddTagController {
         this.interactor = interactor;
     }
 
-    public void addTag(int recipeId, String tagName) {
-        interactor.execute(new AddTagInputData(recipeId, tagName));
+    public void addTag(String username, int recipeId, String tagName) {
+        AddTagInputData inputData = new AddTagInputData(username, recipeId, tagName);
+        interactor.execute(inputData);
+
     }
 }

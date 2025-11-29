@@ -13,12 +13,21 @@ public class AddTagPresenter implements AddTagOutputBoundary {
     }
 
     @Override
-    public void present(AddTagOutputData outputTagData) {
+    public void prepareSuccessView(AddTagOutputData outputTagData) {
         TaggingState state = taggingViewModel.getState();
-        state.setMessage(outputTagData.getMessage());
-        state.setSuccess(outputTagData.isSuccess());
+        state.setMessage("Tag '" + outputTagData.getNewTag() + "' added successfully");
+        state.setSuccess(true);
         taggingViewModel.setState(state);
         taggingViewModel.firePropertyChanged();
 
+    }
+
+    @Override
+    public void prepareFailView(String errorMessage) {
+        TaggingState state = taggingViewModel.getState();
+        state.setMessage(errorMessage);
+        state.setSuccess(false);
+        taggingViewModel.setState(state);
+        taggingViewModel.firePropertyChanged();
     }
 }

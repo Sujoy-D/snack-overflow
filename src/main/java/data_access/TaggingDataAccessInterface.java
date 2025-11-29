@@ -1,8 +1,8 @@
 package data_access;
 
-import entity.Recipe;
+import java.util.List;
 
 public interface TaggingDataAccessInterface {
-    Recipe getRecipebyId(int recipeId);
-    void saveRecipe(Recipe recipe);
+    void addTagToRecipe(String username, int recipeId, String tagName);
+    List<String> getTagsForRecipe(String username, int recipeId);
 }

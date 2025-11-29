@@ -6,52 +6,38 @@ package use_case.tagging;
  */
 
 import data_access.TaggingDataAccessInterface;
-import entity.Recipe;
-import entity.Tag;
+
+import java.util.List;
 
 public class AddTagInteractor implements AddTagInputBoundary {
-    private final TaggingDataAccessInterface recipeGateway;
+    private final TaggingDataAccessInterface taggingDataAccess;
     private final AddTagOutputBoundary presenter;
 
-    public AddTagInteractor(TaggingDataAccessInterface recipeGateway, AddTagOutputBoundary presenter) {
-        this.recipeGateway = recipeGateway;
+    public AddTagInteractor(TaggingDataAccessInterface taggingDataAccess, AddTagOutputBoundary presenter) {
+        this.taggingDataAccess = taggingDataAccess;
         this.presenter = presenter;
     }
 
     @Override
     public void execute(AddTagInputData tagData) {
-        String name = tagData.getTagName().trim();
+        String username = tagData.getUsername();
+        int recipeId = tagData.getRecipeId();
+        String tagName = tagData.getTagName().trim();
 
-        if (name.length() > 20) {
-            presenter.present(new AddTagOutputData(false, "Invalid tag name, too long"));
-            return;
-        }
-        for (char c1: name.toCharArray()) {
-            if (!Character.isLetterOrDigit(c1)) {
-                presenter.present(new AddTagOutputData(false, "Invalid tag name"));
-                return;
-            }
-        }
-
-        Recipe recipe = recipeGateway.getRecipebyId(tagData.getRecipeId());
-
-        boolean exists = false;
-        for (Tag tag: recipe.getTags()) {
-            if (tag.getName().equalsIgnoreCase(name)) {
-                exists = true;
-                break;
-            }
-        }
-
-        if (exists) {
-            presenter.present(new AddTagOutputData(false, "Tag already exists"));
+        if (tagName.isEmpty()) {
+            presenter.prepareFailView("Tag name cannot be empty.");
             return;
         }
 
-        recipe.getTags().add(new Tag(0, name));
-        recipeGateway.saveRecipe(recipe);
-        presenter.present(new AddTagOutputData(true, "Tag Added"));
+        if (tagName.length() > 20) {
+            presenter.prepareFailView("Invalid tag name, too long.");
+            return;
+        }
 
+        taggingDataAccess.addTagToRecipe(username, recipeId, tagName);
+        List<String> allTags = taggingDataAccess.getTagsForRecipe(username, recipeId);
 
+        AddTagOutputData outputData = new AddTagOutputData(recipeId, tagName, allTags);
+        presenter.prepareSuccessView(outputData);
     }
 }
