@@ -20,6 +20,12 @@ public class SidebarView extends JPanel {
         initializeSidebar();
     }
     
+    private void closeParent() {
+        if (parentFrame != null) {
+            parentFrame.dispose();
+        }
+    }
+    
     private void initializeSidebar() {
         setBackground(new Color(138, 43, 226));
         setPreferredSize(new Dimension(200, 0));
@@ -31,7 +37,7 @@ public class SidebarView extends JPanel {
         profileButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                parentFrame.dispose();
+                closeParent();
                 navigationController.execute("home", username);
             }
         });
@@ -43,7 +49,7 @@ public class SidebarView extends JPanel {
         searchButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                parentFrame.dispose();
+                closeParent();
                 navigationController.execute("search", username);
             }
         });
@@ -55,7 +61,7 @@ public class SidebarView extends JPanel {
         savedButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                parentFrame.dispose();
+                closeParent();
                 navigationController.execute("saved", username);
             }
         });
@@ -67,7 +73,7 @@ public class SidebarView extends JPanel {
         createNewButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                parentFrame.dispose();
+                closeParent();
                 navigationController.execute("create", username);
             }
         });
@@ -79,7 +85,7 @@ public class SidebarView extends JPanel {
         mealPlanningButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                parentFrame.setVisible(false);
+                closeParent();
                 navigationController.execute("mealPlanning", username);
             }
         });
@@ -103,4 +109,3 @@ public class SidebarView extends JPanel {
         return button;
     }
 }
-

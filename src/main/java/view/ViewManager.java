@@ -1,7 +1,6 @@
 package view;
 
-import data_access.MealPlanDataAccessInterface;
-import data_access.SpoonacularMealPlanAPI;
+import gateways.SpoonacularMealPlanAPI;
 import gateways.JavaHttpGateway;
 import interface_adapter.generate_meal_plan.MealPlanController;
 import interface_adapter.generate_meal_plan.MealPlanPresenter;
@@ -9,6 +8,8 @@ import interface_adapter.generate_meal_plan.MealPlanViewModel;
 import interface_adapter.navigation.NavigationController;
 import interface_adapter.navigation.NavigationViewModel;
 import use_case.generate_meal_plan.MealPlanInteractor;
+import use_case.generate_meal_plan.MealPlanDataAccessInterface;
+import javax.swing.JFrame;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -16,6 +17,7 @@ import java.beans.PropertyChangeListener;
 public class ViewManager implements PropertyChangeListener {
     private NavigationViewModel navigationViewModel;
     private NavigationController navigationController;
+    private JFrame currentFrame;
     
     public ViewManager(NavigationViewModel navigationViewModel) {
         this.navigationViewModel = navigationViewModel;
@@ -33,18 +35,22 @@ public class ViewManager implements PropertyChangeListener {
         String username = navigationViewModel.getUsername();
         
         if (currentPage != null && username != null) {
+            if (currentFrame != null) {
+                currentFrame.dispose();
+                currentFrame = null;
+            }
             switch (currentPage) {
                 case "home":
-                    HomePageView.show(username, navigationController);
+                    currentFrame = HomePageView.show(username, navigationController);
                     break;
                 case "search":
-                    SearchPageView.show(username, navigationController);
+                    currentFrame = SearchPageView.show(username, navigationController);
                     break;
                 case "saved":
-                    SavedPageView.show(username, navigationController);
+                    currentFrame = SavedPageView.show(username, navigationController);
                     break;
                 case "create":
-                    CreatePageView.show(username, navigationController);
+                    currentFrame = CreatePageView.show(username, navigationController);
                     break;
                 case "mealPlanning":
                     MealPlanViewModel mealPlanViewModel = new MealPlanViewModel();
@@ -52,7 +58,7 @@ public class ViewManager implements PropertyChangeListener {
                     MealPlanDataAccessInterface api = new SpoonacularMealPlanAPI(new JavaHttpGateway());
                     MealPlanInteractor interactor = new MealPlanInteractor(api, presenter);
                     MealPlanController controller = new MealPlanController(interactor);
-                    MealPlanningPageView.show(
+                    currentFrame = MealPlanningPageView.show(
                             username,
                             navigationController,
                             controller,
@@ -63,4 +69,3 @@ public class ViewManager implements PropertyChangeListener {
         }
     }
 }
-

@@ -1,7 +1,5 @@
 package use_case.generate_meal_plan;
 
-import data_access.MealPlanDataAccessInterface;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,4 +39,3 @@ public class MealPlanInteractor implements MealPlanInputBoundary {
         }
     }
 }
-

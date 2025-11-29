@@ -1,11 +1,10 @@
-package data_access;
+package use_case.generate_meal_plan;
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * Data Access interface for generating weekly meal plans.
- * Implemented by SpoonacularMealPlanAPI.
+ * Gateway interface for generating meal plans.
  */
 public interface MealPlanDataAccessInterface {
 
@@ -20,4 +19,3 @@ public interface MealPlanDataAccessInterface {
             int mealsPerDay
     ) throws Exception;
 }
-

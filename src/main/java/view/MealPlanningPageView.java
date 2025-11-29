@@ -4,6 +4,7 @@ import interface_adapter.generate_meal_plan.MealPlanController;
 import interface_adapter.generate_meal_plan.MealPlanViewModel;
 import interface_adapter.generate_meal_plan.MealPlanState;
 import interface_adapter.navigation.NavigationController;
+import data_access.MealPlanStorage;
 
 import javax.swing.*;
 import java.awt.*;
@@ -38,7 +39,8 @@ public class MealPlanningPageView extends JPanel implements PropertyChangeListen
     public MealPlanningPageView(String username,
                                 NavigationController navigationController,
                                 MealPlanController controller,
-                                MealPlanViewModel viewModel) {
+                                MealPlanViewModel viewModel,
+                                JFrame parentFrame) {
         this.username = username;
         this.navigationController = navigationController;
         this.controller = controller;
@@ -48,7 +50,7 @@ public class MealPlanningPageView extends JPanel implements PropertyChangeListen
 
         setLayout(new BorderLayout());
 
-        SidebarView sidebar = new SidebarView(navigationController, username, null);
+        SidebarView sidebar = new SidebarView(navigationController, username, parentFrame);
         add(sidebar, BorderLayout.WEST);
 
         JPanel mainPanel = new JPanel();
@@ -96,7 +98,7 @@ public class MealPlanningPageView extends JPanel implements PropertyChangeListen
             MealPlanState state = viewModel.getState();
             if (state.getMealPlan() != null && !state.getMealPlan().isEmpty()) {
                 savedMealPlan = new LinkedHashMap<>(state.getMealPlan());
-                gateways.MealPlanStorage.saveMealPlan(username, savedMealPlan);
+                MealPlanStorage.saveMealPlan(username, savedMealPlan);
 
                 JOptionPane.showMessageDialog(
                         this,
@@ -149,7 +151,7 @@ public class MealPlanningPageView extends JPanel implements PropertyChangeListen
 
         mainPanel.add(scrollPane, BorderLayout.CENTER);
 
-        savedMealPlan = gateways.MealPlanStorage.loadMealPlan(username);
+        savedMealPlan = MealPlanStorage.loadMealPlan(username);
         if (savedMealPlan != null) {
             MealPlanState state = viewModel.getState();
             state.setMealPlan(savedMealPlan);
@@ -237,30 +239,27 @@ public class MealPlanningPageView extends JPanel implements PropertyChangeListen
     }
 
 
-    public static void show(String username,
-                            NavigationController navigationController,
-                            MealPlanController controller,
-                            MealPlanViewModel viewModel
-                            ) {
-
-        SwingUtilities.invokeLater(() -> {
-
-            for (Frame frame : Frame.getFrames()) {
-                if (frame.isVisible()) {
-                    frame.dispose();
-                }
+    public static JFrame show(String username,
+                              NavigationController navigationController,
+                              MealPlanController controller,
+                              MealPlanViewModel viewModel
+    ) {
+        for (Frame frame : Frame.getFrames()) {
+            if (frame.isVisible()) {
+                frame.dispose();
             }
+        }
+        
+        JFrame frame = new JFrame("Snack Overflow - Meal Planning");
+        frame.setMinimumSize(new Dimension(900, 600));
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
+        
+        MealPlanningPageView page =
+                new MealPlanningPageView(username, navigationController, controller, viewModel, frame);
 
-            JFrame frame = new JFrame("Snack Overflow - Meal Planning");
-            frame.setMinimumSize(new Dimension(900, 600));
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setLocationRelativeTo(null);
-
-            MealPlanningPageView page =
-                    new MealPlanningPageView(username, navigationController, controller, viewModel);
-
-            frame.setContentPane(page);
-            frame.setVisible(true);
-        });
+        frame.setContentPane(page);
+        frame.setVisible(true);
+        return frame;
     }
 }
