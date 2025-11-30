@@ -1,14 +1,14 @@
 package gateways;
 
+import entity.Ingredient;
+import entity.Recipe;
+import entity.Tag;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import use_case.generate_meal_plan.MealPlanDataAccessInterface;
 
 import java.util.*;
 
-/**
- * Gateway that calls the Spoonacular meal planner API.
- */
 public class SpoonacularMealPlanAPI implements MealPlanDataAccessInterface {
 
     private final JavaHttpGateway httpGateway;
@@ -18,7 +18,7 @@ public class SpoonacularMealPlanAPI implements MealPlanDataAccessInterface {
     }
 
     @Override
-    public Map<String, List<String>> generateWeeklyMealPlan(
+    public Map<String, List<Recipe>> generateWeeklyMealPlan(
             String diet,
             String calorieLevel,
             int mealsPerDay
@@ -43,7 +43,7 @@ public class SpoonacularMealPlanAPI implements MealPlanDataAccessInterface {
         JSONObject json = new JSONObject(response);
         JSONObject weekObj = json.getJSONObject("week");
 
-        Map<String, List<String>> result = new LinkedHashMap<>();
+        Map<String, List<Recipe>> result = new LinkedHashMap<>();
 
         List<String> days = Arrays.asList(
                 "monday", "tuesday", "wednesday", "thursday",
@@ -51,19 +51,102 @@ public class SpoonacularMealPlanAPI implements MealPlanDataAccessInterface {
         );
 
         for (String day : days) {
+
             JSONObject dayObj = weekObj.getJSONObject(day);
             JSONArray mealsArr = dayObj.getJSONArray("meals");
 
-            List<String> titles = new ArrayList<>();
+            List<Recipe> recipesForDay = new ArrayList<>();
 
-            for (int i = 0; i < Math.min(mealsPerDay, mealsArr.length()); i++) {
+            int count = Math.min(mealsPerDay, mealsArr.length());
+
+            for (int i = 0; i < count; i++) {
                 JSONObject mealObj = mealsArr.getJSONObject(i);
-                titles.add(mealObj.getString("title"));
+                int recipeId = mealObj.getInt("id");
+
+                Recipe recipe = fetchFullRecipe(recipeId);
+                if (recipe != null) {
+                    recipesForDay.add(recipe);
+                }
             }
 
-            result.put(day, titles);
+            result.put(day, recipesForDay);
         }
 
         return result;
+    }
+
+    private Recipe fetchFullRecipe(int id) {
+        try {
+            String url = "https://api.spoonacular.com/recipes/" + id + "/information";
+            String response = httpGateway.get(url);
+
+            JSONObject json = new JSONObject(response);
+
+            String title = json.getString("title");
+            String instructions = json.optString("instructions", "No instructions available");
+
+            String cuisine = "Unknown";
+            if (json.has("cuisines") && json.getJSONArray("cuisines").length() > 0) {
+                cuisine = json.getJSONArray("cuisines").getString(0);
+            }
+
+            int cookingTime = json.optInt("readyInMinutes", 0);
+
+            String mealType = "Unknown";
+            if (json.has("dishTypes") && json.getJSONArray("dishTypes").length() > 0) {
+                mealType = json.getJSONArray("dishTypes").getString(0);
+            }
+
+            int servings = json.optInt("servings", 1);
+
+            List<Ingredient> ingredients = new ArrayList<>();
+
+            if (json.has("extendedIngredients")) {
+                JSONArray ingArr = json.getJSONArray("extendedIngredients");
+                for (int i = 0; i < ingArr.length(); i++) {
+                    JSONObject ingObj = ingArr.getJSONObject(i);
+                    String name = ingObj.getString("name");
+
+                    String quantity = String.valueOf(ingObj.getDouble("amount"));
+                    String unit = ingObj.optString("unit", "");
+
+                    ingredients.add(new Ingredient(name, quantity, unit));
+                }
+            }
+
+            List<Tag> tags = new ArrayList<>();
+
+            int tagCounter = 1;
+
+            if (json.has("dishTypes")) {
+                JSONArray typeArr = json.getJSONArray("dishTypes");
+                for (int i = 0; i < typeArr.length(); i++) {
+                    tags.add(new Tag(tagCounter++, typeArr.getString(i)));
+                }
+            }
+
+            if (json.has("cuisines")) {
+                JSONArray cuisineArr = json.getJSONArray("cuisines");
+                for (int i = 0; i < cuisineArr.length(); i++) {
+                    tags.add(new Tag(tagCounter++, cuisineArr.getString(i)));
+                }
+            }
+
+            return new Recipe(
+                    id,
+                    ingredients,
+                    title,
+                    instructions,
+                    cuisine,
+                    cookingTime,
+                    mealType,
+                    servings,
+                    tags
+            );
+
+        } catch (Exception e) {
+            System.out.println("Error loading detailed recipe " + id + ": " + e.getMessage());
+            return null;
+        }
     }
 }
