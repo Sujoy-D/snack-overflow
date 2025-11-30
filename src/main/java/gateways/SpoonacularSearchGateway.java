@@ -1,5 +1,6 @@
 package gateways;
 
+import entity.Ingredient;
 import entity.Recipe;
 import entity.RecipeFactory;
 import org.json.JSONArray;
@@ -121,11 +122,11 @@ public class SpoonacularSearchGateway implements SearchRecipesGateway {
             Integer readyInMinutes = recipeJson.has("readyInMinutes") ?
                     recipeJson.optInt("readyInMinutes") : null;
             
-            List<String> ingredients = new ArrayList<>();
-            extractIngredientNames(recipeJson.optJSONArray("extendedIngredients"), ingredients);
+            List<Ingredient> ingredients = new ArrayList<>();
+            extractIngredients(recipeJson.optJSONArray("extendedIngredients"), ingredients);
             
             if (ingredients.isEmpty()) {
-                ingredients.add("Ingredients provided in response");
+                ingredients.add(new Ingredient("Ingredients provided in response", "", ""));
             }
             
             Recipe recipe = recipeFactory.create(
@@ -154,12 +155,12 @@ public class SpoonacularSearchGateway implements SearchRecipesGateway {
             int id = recipeJson.optInt("id");
             String title = recipeJson.optString("title", "Untitled Recipe");
             
-            List<String> ingredients = new ArrayList<>();
-            extractIngredientNames(recipeJson.optJSONArray("usedIngredients"), ingredients);
-            extractIngredientNames(recipeJson.optJSONArray("missedIngredients"), ingredients);
+            List<Ingredient> ingredients = new ArrayList<>();
+            extractIngredients(recipeJson.optJSONArray("usedIngredients"), ingredients);
+            extractIngredients(recipeJson.optJSONArray("missedIngredients"), ingredients);
             
             if (ingredients.isEmpty()) {
-                ingredients.add("Ingredients provided in response");
+                ingredients.add(new Ingredient("Ingredients provided in response", "", ""));
             }
             
             Recipe recipe = recipeFactory.create(
@@ -194,6 +195,7 @@ public class SpoonacularSearchGateway implements SearchRecipesGateway {
         
         return recipes.stream()
                 .filter(r -> r.getIngredients().stream()
+                        .map(Ingredient::getName)
                         .map(String::toLowerCase)
                         .noneMatch(lowered::contains))
                 .collect(Collectors.toList());
@@ -229,7 +231,7 @@ public class SpoonacularSearchGateway implements SearchRecipesGateway {
         return value;
     }
     
-    private void extractIngredientNames(JSONArray ingredientsArray, List<String> ingredients) {
+    private void extractIngredients(JSONArray ingredientsArray, List<Ingredient> ingredients) {
         if (ingredientsArray == null) {
             return;
         }
@@ -238,7 +240,11 @@ public class SpoonacularSearchGateway implements SearchRecipesGateway {
             if (ingredientJson != null) {
                 String name = ingredientJson.optString("name", "").trim();
                 if (!name.isEmpty()) {
-                    ingredients.add(name);
+                    String quantity = ingredientJson.has("amount")
+                            ? ingredientJson.opt("amount").toString()
+                            : "";
+                    String unit = ingredientJson.optString("unit", "");
+                    ingredients.add(new Ingredient(name, quantity, unit));
                 }
             }
         }

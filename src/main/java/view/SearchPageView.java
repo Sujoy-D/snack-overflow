@@ -1,5 +1,6 @@
 package view;
 
+import entity.Ingredient;
 import entity.Recipe;
 import entity.RecipeFactory;
 import gateways.JavaHttpGateway;
@@ -296,10 +297,10 @@ public class SearchPageView implements PropertyChangeListener {
         return card;
     }
     
-    private String formatIngredients(List<String> ingredients) {
+    private String formatIngredients(List<Ingredient> ingredients) {
         return ingredients.stream()
+                .map(Ingredient::getName)
                 .limit(6)
-                .map(String::trim)
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.joining(", "));
     }
