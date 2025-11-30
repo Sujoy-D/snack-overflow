@@ -5,7 +5,6 @@ import entity.Ingredient;
 import entity.Recipe;
 import entity.Tag;
 import interface_adapter.navigation.NavigationController;
-import interface_adapter.navigation.NavigationViewModel;
 
 import javax.swing.*;
 import java.awt.*;
