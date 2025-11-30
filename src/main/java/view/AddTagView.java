@@ -1,20 +1,12 @@
 package view;
 
-import data_access.TaggingDataAccessInterface;
 import interface_adapter.tagging.AddTagController;
-import interface_adapter.tagging.AddTagPresenter;
 import interface_adapter.tagging.TaggingState;
 import interface_adapter.tagging.TaggingViewModel;
-import use_case.tagging.AddTagInteractor;
-
 import javax.swing.*;
 import java.awt.*;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class AddTagView extends JPanel implements PropertyChangeListener {
     private static final String FONT_ARIAL = "Arial";
@@ -125,73 +117,5 @@ public class AddTagView extends JPanel implements PropertyChangeListener {
         timer.setRepeats(false);
         timer.start();
 
-    }
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-
-            TaggingDataAccessInterface temp = new TaggingDataAccessInterface() {
-                private final Map<String, Map<Integer, List<String>>> store = new HashMap<>();
-
-                @Override
-                public void addTagToRecipe(String username, int recipeId, String tagName) {
-                    Map<Integer, java.util.List<String>> userMap = store.computeIfAbsent(username, k -> new HashMap<>());
-                    java.util.List<String> tags = userMap.computeIfAbsent(recipeId, k -> new ArrayList<>());
-                    if (!tags.contains(tagName)) {
-                        tags.add(tagName);
-                    }
-                    System.out.println("Saved tag" + tagName + "for" + username + "on recipe:" + recipeId);
-
-                }
-
-
-                @Override
-                public java.util.List<String> getTagsForRecipe(String username, int recipeId) {
-                    Map<Integer, java.util.List<String>> userMap = store.get(username);
-                    if (userMap == null) {
-                        return new ArrayList<>();
-                    }
-                    java.util.List<String> tags = userMap.get(recipeId);
-                    return tags == null ? new ArrayList<>() : new ArrayList<>(tags);
-
-                }
-            };
-
-            // Build the clean-arch stack
-            TaggingViewModel viewModel = new TaggingViewModel();
-            AddTagPresenter presenter = new AddTagPresenter(viewModel);
-            AddTagInteractor interactor = new AddTagInteractor(temp, presenter);
-            AddTagController controller = new AddTagController(interactor);
-
-            String testUsername = "Harold";
-            int testRecipeId = 123;
-
-            JFrame frame = new JFrame("Temporary Recipe Page");
-            frame.setMinimumSize(new Dimension(720, 480));
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setLocationRelativeTo(null);
-
-            JPanel mainPanel = new JPanel(new GridBagLayout());
-            mainPanel.setBackground(new Color(240, 235, 255));
-            GridBagConstraints gbc = new GridBagConstraints();
-
-            JButton createTagButton = new JButton("New Tag");
-            createTagButton.setFont(new Font(FONT_ARIAL, Font.BOLD, 14));
-            createTagButton.setBackground(new Color(138, 43, 226));
-            createTagButton.setForeground(Color.WHITE);
-            createTagButton.setFocusPainted(false);
-            createTagButton.setBorderPainted(false);
-            createTagButton.setOpaque(true);
-            createTagButton.setPreferredSize(new Dimension(120, 40));
-
-            // open the real AddTag popup
-            createTagButton.addActionListener(e ->
-                    AddTagView.showAddTagPage(testUsername, testRecipeId, controller, viewModel)
-            );
-
-            mainPanel.add(createTagButton, gbc);
-            frame.add(mainPanel);
-            frame.pack();
-            frame.setVisible(true);
-        });
     }
 }
