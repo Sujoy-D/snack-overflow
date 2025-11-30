@@ -1,5 +1,7 @@
 package view;
 
+import data_access.AddRecipeDataAccessInterface;
+import data_access.UserFileDataAccess;
 import gateways.SpoonacularMealPlanAPI;
 import gateways.JavaHttpGateway;
 import interface_adapter.generate_meal_plan.MealPlanController;
@@ -47,7 +49,8 @@ public class ViewManager implements PropertyChangeListener {
                     currentFrame = SearchPageView.show(username, navigationController);
                     break;
                 case "saved":
-                    currentFrame = SavedPageView.show(username, navigationController);
+                    AddRecipeDataAccessInterface recipeDataAccess = new UserFileDataAccess();
+                    currentFrame = SavedRecipesView.show(username, navigationController, recipeDataAccess);
                     break;
                 case "create":
                     currentFrame = CreatePageView.show(username, navigationController);
