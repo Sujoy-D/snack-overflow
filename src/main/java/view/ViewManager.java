@@ -7,8 +7,19 @@ import interface_adapter.generate_meal_plan.MealPlanPresenter;
 import interface_adapter.generate_meal_plan.MealPlanViewModel;
 import interface_adapter.navigation.NavigationController;
 import interface_adapter.navigation.NavigationViewModel;
+import interface_adapter.login.LoginController;
+import interface_adapter.login.LoginPresenter;
+import interface_adapter.login.LoginViewModel;
+import interface_adapter.signup.SignUpController;
+import interface_adapter.signup.SignUpPresenter;
+import interface_adapter.signup.SignUpViewModel;
 import use_case.generate_meal_plan.MealPlanInteractor;
 import use_case.generate_meal_plan.MealPlanDataAccessInterface;
+import use_case.login.LoginInteractor;
+import use_case.signup.SignUpInteractor;
+import data_access.LoginDataAccessObject;
+import data_access.SignUpDataAccessObject;
+import data_access.UserRepository;
 import javax.swing.JFrame;
 
 import java.beans.PropertyChangeEvent;
@@ -34,12 +45,37 @@ public class ViewManager implements PropertyChangeListener {
         String currentPage = navigationViewModel.getCurrentPage();
         String username = navigationViewModel.getUsername();
         
-        if (currentPage != null && username != null) {
+        if (currentPage != null) {
             if (currentFrame != null) {
                 currentFrame.dispose();
                 currentFrame = null;
             }
             switch (currentPage) {
+                case "login":
+                    // Create login dependencies and show login page
+                    UserRepository loginUserRepo = new UserRepository();
+                    LoginDataAccessObject loginDataAccess = new LoginDataAccessObject(loginUserRepo);
+                    LoginViewModel loginViewModel = new LoginViewModel();
+                    LoginPresenter loginPresenter = new LoginPresenter(loginViewModel, navigationController);
+                    LoginInteractor loginInteractor = new LoginInteractor(loginDataAccess, loginPresenter);
+                    LoginController loginController = new LoginController(loginInteractor);
+                    currentFrame = LoginPageView.show(loginViewModel, loginController, navigationController);
+                    break;
+                case "signup":
+                    // Create signup dependencies and show signup page
+                    UserRepository signupUserRepo = new UserRepository();
+                    SignUpDataAccessObject signUpDataAccess = new SignUpDataAccessObject(signupUserRepo);
+                    SignUpViewModel signUpViewModel = new SignUpViewModel();
+                    SignUpPresenter signUpPresenter = new SignUpPresenter(signUpViewModel, navigationController);
+                    SignUpInteractor signUpInteractor = new SignUpInteractor(signUpDataAccess, signUpPresenter);
+                    SignUpController signUpController = new SignUpController(signUpInteractor);
+                    currentFrame = SignUpPageView.show(signUpViewModel, signUpController, navigationController);
+                    break;
+            }
+            
+            // Pages that require a username
+            if (username != null) {
+                switch (currentPage) {
                 case "home":
                     currentFrame = HomePageView.show(username, navigationController);
                     break;
@@ -65,7 +101,10 @@ public class ViewManager implements PropertyChangeListener {
                             mealPlanViewModel
                     );
                     break;
+                }
             }
         }
     }
+    
+
 }
