@@ -1,5 +1,7 @@
 package view;
 
+import entity.Recipe;
+
 import interface_adapter.generate_meal_plan.MealPlanController;
 import interface_adapter.generate_meal_plan.MealPlanViewModel;
 import interface_adapter.generate_meal_plan.MealPlanState;
@@ -12,6 +14,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.List;
 
 public class MealPlanningPageView extends JPanel implements PropertyChangeListener {
     private String username;
@@ -24,14 +27,15 @@ public class MealPlanningPageView extends JPanel implements PropertyChangeListen
     private JComboBox<String> calorieCombo;
     private JComboBox<Integer> mealsPerDayCombo;
     private JButton generateButton;
-    private Map<String, java.util.List<String>> savedMealPlan;
+
+    private Map<String, List<Recipe>> savedMealPlan;
 
     private JPanel resultPanel;
 
     private void styleComboBox(JComboBox<?> combo) {
         combo.setBackground(Color.WHITE);
         combo.setForeground(new Color(75, 0, 130));
-        combo.setBorder(BorderFactory.createLineBorder(new Color(180, 160, 220), 2, true)); // 圆角边框
+        combo.setBorder(BorderFactory.createLineBorder(new Color(180, 160, 220), 2, true));
         combo.setFont(new Font("Arial", Font.BOLD, 14));
         combo.setPreferredSize(new Dimension(250, 30));
     }
@@ -100,14 +104,15 @@ public class MealPlanningPageView extends JPanel implements PropertyChangeListen
                 savedMealPlan = new LinkedHashMap<>(state.getMealPlan());
                 MealPlanStorage.saveMealPlan(username, savedMealPlan);
 
+                state.setMealPlan(savedMealPlan);
+                viewModel.firePropertyChanged();
+
                 JOptionPane.showMessageDialog(
                         this,
                         "Weekly Meal Plan saved!",
                         "Saved",
                         JOptionPane.INFORMATION_MESSAGE
                 );
-
-                renderResults(state);
             } else {
                 JOptionPane.showMessageDialog(
                         this,
@@ -155,17 +160,15 @@ public class MealPlanningPageView extends JPanel implements PropertyChangeListen
         if (savedMealPlan != null) {
             MealPlanState state = viewModel.getState();
             state.setMealPlan(savedMealPlan);
-            renderResults(state);
+            viewModel.firePropertyChanged();
         }
     }
-
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         MealPlanState state = (MealPlanState) evt.getNewValue();
         renderResults(state);
     }
-
 
     private void renderResults(MealPlanState state) {
 
@@ -180,7 +183,13 @@ public class MealPlanningPageView extends JPanel implements PropertyChangeListen
             return;
         }
 
-        state.getMealPlan().forEach((day, meals) -> {
+        if (state.getMealPlan() == null) {
+            revalidate();
+            repaint();
+            return;
+        }
+
+        state.getMealPlan().forEach((day, recipes) -> {
             Color loginPurple = new Color(75, 0, 130);
 
             JPanel dayPanel = new JPanel();
@@ -201,26 +210,30 @@ public class MealPlanningPageView extends JPanel implements PropertyChangeListen
 
             dayPanel.add(dayLabel);
 
-            meals.forEach(mealTitle -> {
+            recipes.forEach(recipe -> {
+                String mealTitle = recipe.getTitle();
+
                 JLabel mealLabel = new JLabel("• " + mealTitle);
                 mealLabel.setFont(new Font("Arial", Font.PLAIN, 14));
                 mealLabel.setForeground(new Color(90, 60, 160));
                 mealLabel.setBorder(BorderFactory.createEmptyBorder(2, 10, 2, 0));
-
-                mealLabel.setForeground(new Color(90, 60, 160));
                 mealLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
                 mealLabel.addMouseListener(new java.awt.event.MouseAdapter() {
                     @Override
                     public void mouseClicked(java.awt.event.MouseEvent evt) {
+
+                        // TODO: replace this JOptionPane with RecipeDetailController.execute(recipe) to show full recipe view.
+
                         JOptionPane.showMessageDialog(
                                 null,
-                                "You clicked on: " + mealTitle,
+                                "You clicked on: " + mealTitle + " (id = " + recipe.getRecipeId() + ")",
                                 "Meal Selected",
                                 JOptionPane.INFORMATION_MESSAGE
                         );
                     }
                 });
+
                 dayPanel.add(mealLabel);
             });
 
@@ -238,7 +251,6 @@ public class MealPlanningPageView extends JPanel implements PropertyChangeListen
         repaint();
     }
 
-
     public static JFrame show(String username,
                               NavigationController navigationController,
                               MealPlanController controller,
@@ -249,12 +261,12 @@ public class MealPlanningPageView extends JPanel implements PropertyChangeListen
                 frame.dispose();
             }
         }
-        
+
         JFrame frame = new JFrame("Snack Overflow - Meal Planning");
         frame.setMinimumSize(new Dimension(900, 600));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
-        
+
         MealPlanningPageView page =
                 new MealPlanningPageView(username, navigationController, controller, viewModel, frame);
 
