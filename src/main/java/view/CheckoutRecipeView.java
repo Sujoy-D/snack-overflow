@@ -120,6 +120,8 @@ public class CheckoutRecipeView {
     // TODO: implement the show method
     public static JFrame show(String username, NavigationController navigationController) {
         CheckoutRecipeView view = new CheckoutRecipeView(username, navigationController);
+        view.frame.pack();
+        view.frame.setVisible(true);
         return view.frame;
     }
 
@@ -127,6 +129,7 @@ public class CheckoutRecipeView {
     private JPanel buildDetailsPanel() {
         JPanel detailsPanel = new JPanel();
         detailsPanel.setBackground(new Color(240, 235, 255));
+        detailsPanel.setPreferredSize(new Dimension(150, 0));
         detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
 
         cuisineLabel = new JLabel();

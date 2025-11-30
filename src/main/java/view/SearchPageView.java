@@ -16,6 +16,8 @@ import use_case.search.SearchFilters;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
@@ -291,12 +293,32 @@ public class SearchPageView implements PropertyChangeListener {
         JLabel ingredientsLabel = new JLabel("Ingredients: " + formatIngredients(recipe.getIngredients()));
         ingredientsLabel.setFont(new Font("Arial", Font.PLAIN, 13));
         ingredientsLabel.setForeground(new Color(90, 90, 90));
-        
+
+        // NEW STUFF: moving to CheckoutRecipeView
+        JButton viewButton = new JButton("View recipe");
+        viewButton.setBackground(new Color(65, 0, 140));
+        viewButton.setForeground(Color.WHITE);
+        viewButton.setFocusPainted(false);
+        viewButton.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(45, 0, 100), 2),
+                BorderFactory.createEmptyBorder(6, 12, 6, 12)
+        ));
+        viewButton.setFont(new Font("Arial", Font.BOLD, 15));
+        viewButton.setPreferredSize(new Dimension(140, 42));
+        viewButton.setOpaque(true);
+        viewButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                navigationController.execute("checkoutRecipe", username);
+            }
+        });
+
         card.add(titleLabel, BorderLayout.NORTH);
         card.add(ingredientsLabel, BorderLayout.CENTER);
+        card.add(viewButton, BorderLayout.EAST);
         return card;
     }
-    
+
     private String formatIngredients(List<Ingredient> ingredients) {
         return ingredients.stream()
                 .map(Ingredient::getName)
