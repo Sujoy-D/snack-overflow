@@ -34,6 +34,20 @@ public class AddTagInteractor implements AddTagInputBoundary {
             return;
         }
 
+        if (!tagName.matches("[A-Za-z0-9]+]")) {
+            presenter.prepareFailView("Tag name cannot contain symbols.");
+            return;
+        }
+
+        List<String> existingTags = taggingDataAccess.getTagsForRecipe(username, recipeId);
+        String lowerCaseTagName = tagName.toLowerCase();
+        boolean exists = existingTags.stream()
+                .anyMatch(t -> t != null && t.toLowerCase().equals(lowerCaseTagName));
+        if (exists) {
+            presenter.prepareFailView("Tag already exists.");
+            return;
+        }
+
         taggingDataAccess.addTagToRecipe(username, recipeId, tagName);
         List<String> allTags = taggingDataAccess.getTagsForRecipe(username, recipeId);
 
