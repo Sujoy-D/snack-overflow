@@ -18,17 +18,25 @@ public class CheckoutRecipeInteractor implements CheckoutRecipeInputBoundary {
 
     @Override
     public void execute(CheckoutRecipeInputData checkoutRecipeInputData) {
-        Map<String, String> recipeInfo =
-                checkoutRecipeDAO.getRecipeInfo(checkoutRecipeInputData.getRecipe());
+        try {
+            Map<String, String> recipeInfo =
+                    checkoutRecipeDAO.getRecipeInfo(checkoutRecipeInputData.getRecipe());
 
-        ArrayList<ArrayList<String>> recipeIngredients =
-                checkoutRecipeDAO.getRecipeIngredients(checkoutRecipeInputData.getRecipe());
+            ArrayList<ArrayList<String>> recipeIngredients =
+                    checkoutRecipeDAO.getRecipeIngredients(checkoutRecipeInputData.getRecipe());
 
-        ArrayList<String> recipeTags =
-                checkoutRecipeDAO.getRecipeTags(checkoutRecipeInputData.getRecipe());
+            ArrayList<String> recipeTags =
+                    checkoutRecipeDAO.getRecipeTags(checkoutRecipeInputData.getRecipe());
 
-        CheckoutRecipeOutputData outputData = new CheckoutRecipeOutputData(recipeInfo, recipeIngredients, recipeTags);
+            CheckoutRecipeOutputData outputData = new CheckoutRecipeOutputData(recipeInfo, recipeIngredients, recipeTags);
 
-        checkoutRecipePresenter.prepareSuccessView(outputData);
+            checkoutRecipePresenter.prepareSuccessView(outputData);
+        }
+        catch (Exception e) {
+            checkoutRecipePresenter.prepareFailView("Sorry, this recipe cannot be viewed: "
+                                                            + e.getMessage() + "\nPlease try another recipe.");
+        }
+
+
     }
 }

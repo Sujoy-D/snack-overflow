@@ -22,4 +22,14 @@ public class CheckoutRecipePresenter implements CheckoutRecipeOutputBoundary {
         checkoutRecipeViewModel.setState(newState);
         checkoutRecipeViewModel.firePropertyChanged();
     }
+
+    @Override
+    public void prepareFailView(String errorMessage) {
+        CheckoutRecipeState newState = new CheckoutRecipeState();
+        newState.setErrorMessage(errorMessage);
+
+        // Update ViewModel
+        checkoutRecipeViewModel.setState(newState);
+        checkoutRecipeViewModel.firePropertyChanged();
+    }
 }

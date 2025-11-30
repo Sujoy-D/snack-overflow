@@ -11,7 +11,7 @@ import java.util.Map;
 public class CheckoutRecipeDataAccessObject implements CheckoutRecipeDataAccessInterface {
 
     @Override
-    public Map<String, String> getRecipeInfo(Recipe recipe) {
+    public Map<String, String> getRecipeInfo(Recipe recipe) throws Exception {
         final Map<String, String> recipeInfo = new HashMap<>();
 
         recipeInfo.put("recipeID", recipe.getRecipeId().toString());
@@ -26,7 +26,7 @@ public class CheckoutRecipeDataAccessObject implements CheckoutRecipeDataAccessI
     }
 
     @Override
-    public ArrayList<ArrayList<String>> getRecipeIngredients(Recipe recipe) {
+    public ArrayList<ArrayList<String>> getRecipeIngredients(Recipe recipe) throws Exception {
         final ArrayList<ArrayList<String>> recipeIngredients = new ArrayList<>();
 
         for (Ingredient ingredient : recipe.getIngredients()) {
@@ -42,7 +42,7 @@ public class CheckoutRecipeDataAccessObject implements CheckoutRecipeDataAccessI
     }
 
     @Override
-    public ArrayList<String> getRecipeTags(Recipe recipe) {
+    public ArrayList<String> getRecipeTags(Recipe recipe) throws Exception {
         final ArrayList<String> recipeTags = new ArrayList<>();
 
         for (Tag tag : recipe.getTags()) {

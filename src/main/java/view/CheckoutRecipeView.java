@@ -1,10 +1,16 @@
 package view;
 
+import data_access.CheckoutRecipeDataAccessInterface;
+import data_access.CheckoutRecipeDataAccessObject;
 import interface_adapter.checkout_recipe.CheckoutRecipeController;
+import interface_adapter.checkout_recipe.CheckoutRecipePresenter;
 import interface_adapter.checkout_recipe.CheckoutRecipeState;
 import interface_adapter.checkout_recipe.CheckoutRecipeViewModel;
 import interface_adapter.navigation.NavigationController;
 import org.jetbrains.annotations.NotNull;
+import use_case.checkout_recipe.CheckoutRecipeInputBoundary;
+import use_case.checkout_recipe.CheckoutRecipeInteractor;
+import use_case.checkout_recipe.CheckoutRecipeOutputBoundary;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,13 +19,15 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class CheckoutRecipeView extends JPanel implements PropertyChangeListener {
+public class CheckoutRecipeView {
 
     private String username;
 
     private final NavigationController navigationController;
     private final CheckoutRecipeController checkoutRecipeController;
     private final CheckoutRecipeViewModel checkoutRecipeViewModel;
+
+    private JFrame frame;
 
     // Centre panel
     private JLabel titleLabel;
@@ -35,32 +43,39 @@ public class CheckoutRecipeView extends JPanel implements PropertyChangeListener
 
 
     public CheckoutRecipeView(String username,
-                              NavigationController navigationController,
-                              CheckoutRecipeController checkoutRecipeController,
-                              CheckoutRecipeViewModel checkoutRecipeViewModel) {
+                              NavigationController navigationController) {
 
         this.username = username;
         this.navigationController = navigationController;
-        this.checkoutRecipeController = checkoutRecipeController;
-        this.checkoutRecipeViewModel = checkoutRecipeViewModel;
 
-        this.checkoutRecipeViewModel.addPropertyChangeListener(this);
+        checkoutRecipeViewModel = new CheckoutRecipeViewModel();
 
-        setLayout(new BorderLayout());
+        CheckoutRecipeDataAccessInterface checkoutRecipeDAO = new CheckoutRecipeDataAccessObject();
+        CheckoutRecipeOutputBoundary checkoutRecipePresenter = new CheckoutRecipePresenter(checkoutRecipeViewModel);
+        CheckoutRecipeInputBoundary checkoutRecipeInteractor = new CheckoutRecipeInteractor(checkoutRecipeDAO, checkoutRecipePresenter);
+        this.checkoutRecipeController = new CheckoutRecipeController(checkoutRecipeInteractor);
+
+        frame = new JFrame("Snack Overflow - Recipe");
+        frame.setMinimumSize(new Dimension(640, 480));
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
+        frame.setLayout(new BorderLayout());
+
+        frame.setLayout(new BorderLayout());
 
         SidebarView sidebar = new SidebarView(navigationController, username, null);
-        add(sidebar, BorderLayout.WEST);
+        frame.add(sidebar, BorderLayout.WEST);
 
         JPanel mainPanel = new JPanel();
         mainPanel.setBackground(new Color(240, 235, 255));
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        add(mainPanel, BorderLayout.CENTER);
+        frame.add(mainPanel, BorderLayout.CENTER);
 
         // Right panel (Cuisine + Cooking time + Type etc.)
-        JPanel detailsPanel = makeDetailsPanel();
-        add(detailsPanel, BorderLayout.EAST);
+        JPanel detailsPanel = buildDetailsPanel();
+        frame.add(detailsPanel, BorderLayout.EAST);
 
-        // Centre panel (Title + Ingredients + Instructions) as scroll pane TODO: add support for images?
+        // Centre panel (Title + Ingredients + Instructions)
         JScrollPane mainScrollPane = new JScrollPane();
         mainScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
         mainPanel.add(mainScrollPane);
@@ -77,37 +92,11 @@ public class CheckoutRecipeView extends JPanel implements PropertyChangeListener
         instructionsLabel = new JLabel();
         mainScrollPane.add(instructionsLabel);
 
-    }
+        // Adding text to labels
+        CheckoutRecipeState state = checkoutRecipeViewModel.getState();
 
-    @NotNull
-    private JPanel makeDetailsPanel() {
-        JPanel detailsPanel = new JPanel();
-        detailsPanel.setBackground(new Color(240, 235, 255));
-        detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
-
-        cuisineLabel = new JLabel();
-        detailsPanel.add(cuisineLabel);
-
-        cookingTimeLabel = new JLabel();
-        detailsPanel.add(cookingTimeLabel);
-
-        mealTypeLabel = new JLabel();
-        detailsPanel.add(mealTypeLabel);
-
-        servingSizeLabel = new JLabel();
-        detailsPanel.add(servingSizeLabel);
-
-        tagsLabel = new JLabel();
-        detailsPanel.add(tagsLabel);
-        return detailsPanel;
-    }
-
-    @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-        CheckoutRecipeState state = (CheckoutRecipeState) evt.getNewValue();
-
-        // TODO: add stuff to display when there is an error - this would require making a fail view for this use case
         if (state.getErrorMessage() != null) {
+            titleLabel.setText(state.getErrorMessage());
             return;
         }
 
@@ -130,9 +119,38 @@ public class CheckoutRecipeView extends JPanel implements PropertyChangeListener
 
     }
 
+    // TODO: implement the show method
+    public static JFrame show(String username, NavigationController navigationController) {
+        CheckoutRecipeView view = new CheckoutRecipeView(username, navigationController);
+        return view.frame;
+    }
+
+    @NotNull
+    private JPanel buildDetailsPanel() {
+        JPanel detailsPanel = new JPanel();
+        detailsPanel.setBackground(new Color(240, 235, 255));
+        detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
+
+        cuisineLabel = new JLabel();
+        detailsPanel.add(cuisineLabel);
+
+        cookingTimeLabel = new JLabel();
+        detailsPanel.add(cookingTimeLabel);
+
+        mealTypeLabel = new JLabel();
+        detailsPanel.add(mealTypeLabel);
+
+        servingSizeLabel = new JLabel();
+        detailsPanel.add(servingSizeLabel);
+
+        tagsLabel = new JLabel();
+        detailsPanel.add(tagsLabel);
+        return detailsPanel;
+    }
+
     private void updateTagsLabel(CheckoutRecipeState state) {
         ArrayList<String> recipeTags = (ArrayList<String>) state.getRecipeTags();
-        StringBuilder tagString = new StringBuilder();
+        StringBuilder tagString = new StringBuilder("Tags: ");
 
         for (String tag : recipeTags) {
             tagString.append(tag).append(", ");

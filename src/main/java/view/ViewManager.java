@@ -65,6 +65,9 @@ public class ViewManager implements PropertyChangeListener {
                             mealPlanViewModel
                     );
                     break;
+                case "checkoutRecipe":
+                    currentFrame = CheckoutRecipeView.show(username, navigationController);
+                    break;
             }
         }
     }
