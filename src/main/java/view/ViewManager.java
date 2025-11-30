@@ -52,12 +52,24 @@ public class ViewManager implements PropertyChangeListener {
             }
             switch (currentPage) {
                 case "login":
-                    // For login page, username can be null
-                    showLoginPage();
+                    // Create login dependencies and show login page
+                    UserRepository loginUserRepo = new UserRepository();
+                    LoginDataAccessObject loginDataAccess = new LoginDataAccessObject(loginUserRepo);
+                    LoginViewModel loginViewModel = new LoginViewModel();
+                    LoginPresenter loginPresenter = new LoginPresenter(loginViewModel, navigationController);
+                    LoginInteractor loginInteractor = new LoginInteractor(loginDataAccess, loginPresenter);
+                    LoginController loginController = new LoginController(loginInteractor);
+                    currentFrame = LoginPageView.show(loginViewModel, loginController, navigationController);
                     break;
                 case "signup":
-                    // For signup page, username can be null
-                    showSignUpPage();
+                    // Create signup dependencies and show signup page
+                    UserRepository signupUserRepo = new UserRepository();
+                    SignUpDataAccessObject signUpDataAccess = new SignUpDataAccessObject(signupUserRepo);
+                    SignUpViewModel signUpViewModel = new SignUpViewModel();
+                    SignUpPresenter signUpPresenter = new SignUpPresenter(signUpViewModel, navigationController);
+                    SignUpInteractor signUpInteractor = new SignUpInteractor(signUpDataAccess, signUpPresenter);
+                    SignUpController signUpController = new SignUpController(signUpInteractor);
+                    currentFrame = SignUpPageView.show(signUpViewModel, signUpController, navigationController);
                     break;
             }
             
@@ -94,29 +106,5 @@ public class ViewManager implements PropertyChangeListener {
         }
     }
     
-    private void showLoginPage() {
-        // Create login dependencies using clean architecture
-        UserRepository userRepository = new UserRepository();
-        LoginDataAccessObject loginDataAccess = new LoginDataAccessObject(userRepository);
-        LoginViewModel loginViewModel = new LoginViewModel();
-        LoginPresenter loginPresenter = new LoginPresenter(loginViewModel, navigationController);
-        LoginInteractor loginInteractor = new LoginInteractor(loginDataAccess, loginPresenter);
-        LoginController loginController = new LoginController(loginInteractor);
-        
-        // Create and show login page
-        currentFrame = LoginPageView.show(loginViewModel, loginController, navigationController);
-    }
-    
-    private void showSignUpPage() {
-        // Create signup dependencies using clean architecture
-        UserRepository userRepository = new UserRepository();
-        SignUpDataAccessObject signUpDataAccess = new SignUpDataAccessObject(userRepository);
-        SignUpViewModel signUpViewModel = new SignUpViewModel();
-        SignUpPresenter signUpPresenter = new SignUpPresenter(signUpViewModel, navigationController);
-        SignUpInteractor signUpInteractor = new SignUpInteractor(signUpDataAccess, signUpPresenter);
-        SignUpController signUpController = new SignUpController(signUpInteractor);
-        
-        // Create and show signup page
-        currentFrame = SignUpPageView.show(signUpViewModel, signUpController, navigationController);
-    }
+
 }
