@@ -46,7 +46,7 @@ public class ViewManager implements PropertyChangeListener {
     public void propertyChange(PropertyChangeEvent evt) {
         String currentPage = navigationViewModel.getCurrentPage();
         String username = navigationViewModel.getUsername();
-        
+
         if (currentPage != null) {
             if (currentFrame != null) {
                 currentFrame.dispose();
@@ -74,58 +74,59 @@ public class ViewManager implements PropertyChangeListener {
                     currentFrame = SignUpPageView.show(signUpViewModel, signUpController, navigationController);
                     break;
             }
-            
+
             // Pages that require a username
             if (username != null) {
                 switch (currentPage) {
-                case "home":
-                    if (currentFrame != null) {
-                        currentFrame.dispose();
-                    }
-                    currentFrame = HomePageView.show(username, navigationController);
-                    break;
-                case "search":
-                    if (currentFrame != null) {
-                        currentFrame.dispose();
-                    }
-                    currentFrame = SearchPageView.show(username, navigationController);
-                    break;
-                case "saved":
-                    AddRecipeDataAccessInterface recipeDataAccess = new UserFileDataAccess();
-                    currentFrame = SavedRecipesView.show(username, navigationController, recipeDataAccess);
-                    break;
-                case "create":
-                    if (currentFrame != null) {
-                        currentFrame.dispose();
-                    }
-                    currentFrame = CreatePageView.show(username, navigationController);
-                    break;
-                case "mealPlanning":
-                    MealPlanViewModel mealPlanViewModel = new MealPlanViewModel();
-                    MealPlanPresenter presenter = new MealPlanPresenter(mealPlanViewModel);
-                    MealPlanDataAccessInterface api = new SpoonacularMealPlanAPI(new JavaHttpGateway());
-                    MealPlanInteractor interactor = new MealPlanInteractor(api, presenter);
-                    MealPlanController controller = new MealPlanController(interactor);
-                    currentFrame = MealPlanningPageView.show(
-                            username,
-                            navigationController,
-                            controller,
-                            mealPlanViewModel
-                    );
-                    break;
-                case "checkoutRecipe":
-                    // Get the selected recipe from navigation data
-                    entity.Recipe selectedRecipe = navigationViewModel.getSelectedRecipe();
+                    case "home":
+                        if (currentFrame != null) {
+                            currentFrame.dispose();
+                        }
+                        currentFrame = HomePageView.show(username, navigationController);
+                        break;
+                    case "search":
+                        if (currentFrame != null) {
+                            currentFrame.dispose();
+                        }
+                        currentFrame = SearchPageView.show(username, navigationController);
+                        break;
+                    case "saved":
+                        AddRecipeDataAccessInterface recipeDataAccess = new UserFileDataAccess();
+                        currentFrame = SavedRecipesView.show(username, navigationController, recipeDataAccess);
+                        break;
+                    case "create":
+                        if (currentFrame != null) {
+                            currentFrame.dispose();
+                        }
+                        currentFrame = CreatePageView.show(username, navigationController);
+                        break;
+                    case "mealPlanning":
+                        MealPlanViewModel mealPlanViewModel = new MealPlanViewModel();
+                        MealPlanPresenter presenter = new MealPlanPresenter(mealPlanViewModel);
+                        MealPlanDataAccessInterface api = new SpoonacularMealPlanAPI(new JavaHttpGateway());
+                        MealPlanInteractor interactor = new MealPlanInteractor(api, presenter);
+                        MealPlanController controller = new MealPlanController(interactor);
+                        currentFrame = MealPlanningPageView.show(
+                                username,
+                                navigationController,
+                                controller,
+                                mealPlanViewModel
+                        );
+                        break;
+                    case "checkoutRecipe":
+                        // Get the selected recipe from navigation data
+                        entity.Recipe selectedRecipe = navigationViewModel.getSelectedRecipe();
 
-                    if (selectedRecipe != null) {
-                        CheckoutRecipeView.show(username, navigationController, selectedRecipe);
-                    }
+                        if (selectedRecipe != null) {
+                            CheckoutRecipeView.show(username, navigationController, selectedRecipe);
+                        }
 
-                    navigationViewModel.setSelectedRecipe(null);
-                    break;
+                        navigationViewModel.setSelectedRecipe(null);
+                        break;
+                }
             }
         }
-    }
-    
 
+
+    }
 }
