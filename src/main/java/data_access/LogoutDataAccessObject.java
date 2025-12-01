@@ -4,14 +4,14 @@ import use_case.logout.LogoutDataAccessInterface;
 
 /**
  * Data Access Object for Logout functionality.
- * Implements the LogoutDataAccessInterface using the existing UserRepository.
+ * Implements the LogoutDataAccessInterface using the existing UserDataAccess.
  */
 public class LogoutDataAccessObject implements LogoutDataAccessInterface {
     
-    private final UserRepository userRepository;
+    private final UserDataAccessObject userDataAccessObject;
     
-    public LogoutDataAccessObject(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public LogoutDataAccessObject(UserDataAccessObject userDataAccessObject) {
+        this.userDataAccessObject = userDataAccessObject;
     }
     
     @Override

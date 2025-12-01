@@ -3,6 +3,7 @@ package data_access;
 import gateways.JavaHttpGateway;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import use_case.similar_recipes.SimilarRecipeDataAccessInterface;
 
 import java.util.ArrayList;
 

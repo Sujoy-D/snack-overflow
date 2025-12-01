@@ -14,6 +14,7 @@ public class User {
     private final String email; // optional
     private final List<Recipe> savedRecipes;
     private final List<Tag> customTags;
+    private final java.util.Map<String, List<Recipe>> mealPlan;
 
     /**
      * Creates a new User entity.
@@ -38,6 +39,7 @@ public class User {
         this.passwordHash = passwordHash;
         this.savedRecipes = new ArrayList<>();
         this.customTags = new ArrayList<>();
+        this.mealPlan = new java.util.LinkedHashMap<>();
     }
 
     public Integer getUserId() { return userId; }
@@ -46,6 +48,7 @@ public class User {
     public String getPasswordHash() { return passwordHash; }
     public List<Recipe> getSavedRecipes() { return savedRecipes; }
     public List<Tag> getCustomTags() { return customTags; }
+    public java.util.Map<String, List<Recipe>> getMealPlan() { return mealPlan; }
 
     public void addRecipe(Recipe recipe) {
         if (!savedRecipes.contains(recipe)) {

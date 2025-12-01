@@ -1,7 +1,7 @@
 package use_case.checkout_recipe;
 
-import data_access.CheckoutRecipeDataAccessInterface;
-import data_access.TaggingDataAccessInterface;
+import use_case.checkout_recipe.CheckoutRecipeDataAccessInterface;
+import use_case.tagging.AddTagDataAccessInterface;
 import entity.Recipe;
 
 import java.util.ArrayList;

@@ -8,16 +8,16 @@ import use_case.signup.SignUpDataAccessInterface;
  */
 public class SignUpDataAccessObject implements SignUpDataAccessInterface {
     
-    private final UserRepository userRepository;
+    private final UserDataAccessObject userDataAccessObject;
     
-    public SignUpDataAccessObject(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public SignUpDataAccessObject(UserDataAccessObject userDataAccessObject) {
+        this.userDataAccessObject = userDataAccessObject;
     }
     
     @Override
     public void saveUser(String username, String password, String email) {
         try {
-            userRepository.saveUser(username, password, email);
+            userDataAccessObject.saveUser(username, password, email);
         } catch (RuntimeException e) {
             // Re-throw runtime exceptions (like username already exists)
             throw e;
@@ -30,7 +30,7 @@ public class SignUpDataAccessObject implements SignUpDataAccessInterface {
     @Override
     public boolean userExists(String username) {
         try {
-            return userRepository.userExists(username);
+            return userDataAccessObject.userExists(username);
         } catch (Exception e) {
             // If we can't check, assume user doesn't exist but log the error
             // In a real application, you'd want proper logging here
