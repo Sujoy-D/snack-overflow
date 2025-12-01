@@ -1,6 +1,8 @@
 package view;
 
 import data_access.RecipeDataAccessObject;
+import data_access.AddTagDataAccessObject;
+import use_case.tagging.AddTagDataAccessInterface;
 import entity.Ingredient;
 import entity.Recipe;
 import entity.Tag;
@@ -15,6 +17,7 @@ public class SavedRecipesView {
     private final String username;
     private final NavigationController navigationController;
     private final RecipeDataAccessObject recipeDataAccessObject;
+    private final AddTagDataAccessInterface taggingDataAccess;
 
     private JFrame frame;
     private JPanel list;
@@ -28,6 +31,7 @@ public class SavedRecipesView {
         this.username = username;
         this.navigationController = navigationController;
         this.recipeDataAccessObject = recipeDataAccessObject;
+        this.taggingDataAccess = new AddTagDataAccessObject();
     }
 
     public static JFrame show(String username, NavigationController navigationController,
@@ -167,10 +171,10 @@ public class SavedRecipesView {
         }
 
         if (filtered.isEmpty()) {
-            statusLabel.setText("No recipes found.");
+            statusLabel.setText("No recipes found matching the specified tags.");
             statusLabel.setForeground(new Color(200, 0, 0));
         } else {
-            statusLabel.setText("Showing" + filtered.size() + " recipe(s) matching your tags.");
+            statusLabel.setText("Showing " + filtered.size() + " recipe(s) matching your tags.");
             statusLabel.setForeground(new Color(33, 150, 83));
         }
 
@@ -178,20 +182,38 @@ public class SavedRecipesView {
     }
 
     private boolean matchesAllTags(Recipe recipe, List<String> wantedTags) {
-        List<Tag> tags = recipe.getTags();
-        if (tags == null || tags.isEmpty()) {
-            return false;
-        }
-        List<String> contains  = new ArrayList<>();
-        for (Tag t : tags) {
-            if (t != null && t.getName() != null) {
-                contains.add(t.getName().toLowerCase());
+        List<String> allTagsForRecipe = new ArrayList<>();
+        
+        // Add built-in recipe tags
+        List<Tag> recipeTags = recipe.getTags();
+        if (recipeTags != null) {
+            for (Tag t : recipeTags) {
+                if (t != null && t.getName() != null) {
+                    allTagsForRecipe.add(t.getName().toLowerCase());
+                }
             }
         }
-        if (contains.isEmpty()) return false;
-
+        
+        // Add custom user tags from database
+        if (recipe.getRecipeId() != null) {
+            List<String> customTags = taggingDataAccess.getTagsForRecipe(username, recipe.getRecipeId());
+            if (customTags != null) {
+                for (String customTag : customTags) {
+                    if (customTag != null && !customTag.trim().isEmpty()) {
+                        allTagsForRecipe.add(customTag.toLowerCase().trim());
+                    }
+                }
+            }
+        }
+        
+        // If no tags at all, recipe can't match
+        if (allTagsForRecipe.isEmpty()) {
+            return false;
+        }
+        
+        // Check if all wanted tags are present
         for (String wantedTag : wantedTags) {
-            if (!contains.contains(wantedTag)) {
+            if (!allTagsForRecipe.contains(wantedTag)) {
                 return false;
             }
         }
