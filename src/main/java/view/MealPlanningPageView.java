@@ -64,7 +64,7 @@ public class MealPlanningPageView extends JPanel implements PropertyChangeListen
 
         JPanel inputPanel = new JPanel();
         inputPanel.setBackground(new Color(240, 235, 255));
-        inputPanel.setLayout(new GridLayout(4, 2, 10, 10));
+        inputPanel.setLayout(new GridLayout(5, 2, 10, 10));
         inputPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         dietCombo = new JComboBox<>(new String[]{"None", "Vegetarian", "Vegan"});
@@ -105,21 +105,51 @@ public class MealPlanningPageView extends JPanel implements PropertyChangeListen
                 MealPlanDataAccessObject mealPlanDataAccessObject = new MealPlanDataAccessObject();
                 mealPlanDataAccessObject.saveMealPlan(username, savedMealPlan);
 
-                state.setMealPlan(savedMealPlan);
-                viewModel.firePropertyChanged();
-
                 JOptionPane.showMessageDialog(
                         this,
-                        "Weekly Meal Plan saved!",
+                        "Weekly Meal Plan saved to your account!",
                         "Saved",
                         JOptionPane.INFORMATION_MESSAGE
                 );
             } else {
                 JOptionPane.showMessageDialog(
                         this,
-                        "No meal plan to save yet.",
+                        "No meal plan to save yet. Generate a plan first!",
                         "Warning",
                         JOptionPane.WARNING_MESSAGE
+                );
+            }
+        });
+
+        JButton loadPlanButton = new JButton("Load Saved Plan");
+        loadPlanButton.setFont(new Font("Arial", Font.BOLD, 14));
+        loadPlanButton.setForeground(Color.WHITE);
+        loadPlanButton.setBackground(new Color(100, 43, 186));
+        loadPlanButton.setFocusPainted(false);
+        loadPlanButton.setBorderPainted(false);
+        loadPlanButton.setOpaque(true);
+        loadPlanButton.addActionListener(e -> {
+            MealPlanDataAccessObject mealPlanDataAccessObject = new MealPlanDataAccessObject();
+            Map<String, List<Recipe>> loadedPlan = mealPlanDataAccessObject.loadMealPlan(username);
+            
+            if (loadedPlan != null && !loadedPlan.isEmpty()) {
+                savedMealPlan = loadedPlan;
+                MealPlanState state = viewModel.getState();
+                state.setMealPlan(loadedPlan);
+                viewModel.firePropertyChanged();
+                
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Your saved meal plan has been loaded!",
+                        "Loaded",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+            } else {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "No saved meal plan found. Generate and save a plan first!",
+                        "No Plan Found",
+                        JOptionPane.INFORMATION_MESSAGE
                 );
             }
         });
@@ -142,8 +172,10 @@ public class MealPlanningPageView extends JPanel implements PropertyChangeListen
         inputPanel.add(mealsPerDayLabel);
         inputPanel.add(mealsPerDayCombo);
 
+        inputPanel.add(loadPlanButton);
         inputPanel.add(savePlanButton);
         inputPanel.add(generateButton);
+        inputPanel.add(new JLabel()); // Empty placeholder for grid alignment
 
         mainPanel.add(inputPanel, BorderLayout.NORTH);
 
@@ -224,15 +256,8 @@ public class MealPlanningPageView extends JPanel implements PropertyChangeListen
                 mealLabel.addMouseListener(new java.awt.event.MouseAdapter() {
                     @Override
                     public void mouseClicked(java.awt.event.MouseEvent evt) {
-
-                        // TODO: replace this JOptionPane with RecipeDetailController.execute(recipe) to show full recipe view.
-
-                        JOptionPane.showMessageDialog(
-                                null,
-                                "You clicked on: " + mealTitle + " (id = " + recipe.getRecipeId() + ")",
-                                "Meal Selected",
-                                JOptionPane.INFORMATION_MESSAGE
-                        );
+                        // Open the CheckoutRecipeView to show full recipe details
+                        CheckoutRecipeView.show(username, navigationController, recipe);
                     }
                 });
 
