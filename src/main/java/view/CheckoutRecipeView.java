@@ -2,7 +2,6 @@ package view;
 
 import data_access.*;
 import gateways.JavaHttpGateway;
-import interface_adapter.navigation.NavigationViewModel;
 import interface_adapter.checkout_recipe.CheckoutRecipeController;
 import interface_adapter.checkout_recipe.CheckoutRecipePresenter;
 import interface_adapter.checkout_recipe.CheckoutRecipeState;
@@ -10,7 +9,6 @@ import interface_adapter.checkout_recipe.CheckoutRecipeViewModel;
 import interface_adapter.navigation.NavigationController;
 import interface_adapter.similar_recipes.SimilarRecipesController;
 import interface_adapter.similar_recipes.SimilarRecipesPresenter;
-import interface_adapter.similar_recipes.SimilarRecipesState;
 import interface_adapter.similar_recipes.SimilarRecipesViewModel;
 import interface_adapter.tagging.AddTagController;
 import interface_adapter.tagging.AddTagPresenter;
