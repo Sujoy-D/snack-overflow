@@ -1,8 +1,7 @@
 package view;
 
-import data_access.UserFileDataAccess;
 import interface_adapter.navigation.NavigationViewModel;
-import data_access.CheckoutRecipeDataAccessInterface;
+import use_case.checkout_recipe.CheckoutRecipeDataAccessInterface;
 import data_access.CheckoutRecipeDataAccessObject;
 import interface_adapter.checkout_recipe.CheckoutRecipeController;
 import interface_adapter.checkout_recipe.CheckoutRecipePresenter;
@@ -15,8 +14,8 @@ import interface_adapter.tagging.TaggingViewModel;
 import use_case.tagging.AddTagInputBoundary;
 import use_case.tagging.AddTagInteractor;
 import use_case.tagging.AddTagOutputBoundary;
-import data_access.TaggingDataAccessInterface;
-import data_access.UserTagFileDataAccess;
+import use_case.tagging.AddTagDataAccessInterface;
+import data_access.AddTagDataAccessObject;
 import org.jetbrains.annotations.NotNull;
 import use_case.checkout_recipe.CheckoutRecipeInputBoundary;
 import use_case.checkout_recipe.CheckoutRecipeInteractor;
@@ -37,7 +36,7 @@ public class CheckoutRecipeView implements PropertyChangeListener {
     private final CheckoutRecipeController checkoutRecipeController;
     private final AddTagController addTagController;
     private final TaggingViewModel taggingViewModel;
-    private final TaggingDataAccessInterface taggingDataAccess;
+    private final AddTagDataAccessInterface taggingDataAccess;
     private final CheckoutRecipeViewModel checkoutRecipeViewModel;
 
     private JFrame frame;
@@ -71,7 +70,7 @@ public class CheckoutRecipeView implements PropertyChangeListener {
         this.checkoutRecipeController = new CheckoutRecipeController(checkoutRecipeInteractor);
 
         taggingViewModel = new TaggingViewModel();
-        taggingDataAccess = new UserTagFileDataAccess();
+        taggingDataAccess = new AddTagDataAccessObject();
         AddTagOutputBoundary taggingPresenter = new AddTagPresenter(taggingViewModel);
         AddTagInputBoundary taggingInteractor = new AddTagInteractor(taggingDataAccess, taggingPresenter);
         this.addTagController = new AddTagController(taggingInteractor);
@@ -130,11 +129,13 @@ public class CheckoutRecipeView implements PropertyChangeListener {
 
         // Button for saving recipe
         JButton saveButton = new JButton("Save Recipe");
-        saveButton.setBackground(new Color(65, 0, 140));
+        saveButton.setBackground(new Color(75, 0, 130));
         saveButton.setForeground(Color.WHITE);
+        saveButton.setOpaque(true);
+        saveButton.setBorderPainted(false);
         saveButton.setFocusPainted(false);
         saveButton.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(45, 0, 100), 2),
+                BorderFactory.createLineBorder(new Color(75, 0, 130), 2),
                 BorderFactory.createEmptyBorder(6, 12, 6, 12)
         ));
         saveButton.setFont(new Font("Arial", Font.BOLD, 15));
@@ -144,11 +145,13 @@ public class CheckoutRecipeView implements PropertyChangeListener {
         detailsPanel.add(Box.createVerticalStrut(8));
         // Button for adding a tag
         JButton addTagButton = new JButton("Add Tag");
-        addTagButton.setBackground(new Color(0, 128, 0));
+        addTagButton.setBackground(new Color(75, 0, 130));
         addTagButton.setForeground(Color.WHITE);
+        addTagButton.setOpaque(true);
+        addTagButton.setBorderPainted(false);
         addTagButton.setFocusPainted(false);
         addTagButton.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(0, 90, 0),2),
+                BorderFactory.createLineBorder(new Color(75, 0, 130), 2),
                 BorderFactory.createEmptyBorder(6, 12, 6, 12)
         ));
         addTagButton.setFont(new Font("Arial", Font.BOLD, 15));

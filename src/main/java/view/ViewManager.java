@@ -1,7 +1,7 @@
 package view;
 
-import data_access.AddRecipeDataAccessInterface;
-import data_access.UserFileDataAccess;
+
+import data_access.RecipeDataAccessObject;
 import gateways.SpoonacularMealPlanAPI;
 import gateways.JavaHttpGateway;
 import interface_adapter.generate_meal_plan.MealPlanController;
@@ -21,7 +21,7 @@ import use_case.login.LoginInteractor;
 import use_case.signup.SignUpInteractor;
 import data_access.LoginDataAccessObject;
 import data_access.SignUpDataAccessObject;
-import data_access.UserRepository;
+import data_access.UserDataAccessObject;
 import javax.swing.JFrame;
 
 import java.beans.PropertyChangeEvent;
@@ -48,14 +48,15 @@ public class ViewManager implements PropertyChangeListener {
         String username = navigationViewModel.getUsername();
         
         if (currentPage != null) {
-            if (currentFrame != null) {
-                currentFrame.dispose();
-                currentFrame = null;
-            }
+
             switch (currentPage) {
                 case "login":
+                    // Dispose current frame before showing login page
+                    if (currentFrame != null) {
+                        currentFrame.dispose();
+                    }
                     // Create login dependencies and show login page
-                    UserRepository loginUserRepo = new UserRepository();
+                    UserDataAccessObject loginUserRepo = new UserDataAccessObject();
                     LoginDataAccessObject loginDataAccess = new LoginDataAccessObject(loginUserRepo);
                     LoginViewModel loginViewModel = new LoginViewModel();
                     LoginPresenter loginPresenter = new LoginPresenter(loginViewModel, navigationController);
@@ -64,8 +65,12 @@ public class ViewManager implements PropertyChangeListener {
                     currentFrame = LoginPageView.show(loginViewModel, loginController, navigationController);
                     break;
                 case "signup":
+                    // Dispose current frame before showing signup page
+                    if (currentFrame != null) {
+                        currentFrame.dispose();
+                    }
                     // Create signup dependencies and show signup page
-                    UserRepository signupUserRepo = new UserRepository();
+                    UserDataAccessObject signupUserRepo = new UserDataAccessObject();
                     SignUpDataAccessObject signUpDataAccess = new SignUpDataAccessObject(signupUserRepo);
                     SignUpViewModel signUpViewModel = new SignUpViewModel();
                     SignUpPresenter signUpPresenter = new SignUpPresenter(signUpViewModel, navigationController);
@@ -91,8 +96,11 @@ public class ViewManager implements PropertyChangeListener {
                     currentFrame = SearchPageView.show(username, navigationController);
                     break;
                 case "saved":
-                    AddRecipeDataAccessInterface recipeDataAccess = new UserFileDataAccess();
-                    currentFrame = SavedRecipesView.show(username, navigationController, recipeDataAccess);
+                    if (currentFrame != null) {
+                        currentFrame.dispose();
+                    }
+                    RecipeDataAccessObject recipeDataAccessObject = new RecipeDataAccessObject();
+                    currentFrame = SavedRecipesView.show(username, navigationController, recipeDataAccessObject);
                     break;
                 case "create":
                     if (currentFrame != null) {
@@ -101,6 +109,9 @@ public class ViewManager implements PropertyChangeListener {
                     currentFrame = CreatePageView.show(username, navigationController);
                     break;
                 case "mealPlanning":
+                    if (currentFrame != null) {
+                        currentFrame.dispose();
+                    }
                     MealPlanViewModel mealPlanViewModel = new MealPlanViewModel();
                     MealPlanPresenter presenter = new MealPlanPresenter(mealPlanViewModel);
                     MealPlanDataAccessInterface api = new SpoonacularMealPlanAPI(new JavaHttpGateway());
