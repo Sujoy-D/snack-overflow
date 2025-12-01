@@ -51,7 +51,5 @@ public class CheckoutRecipeInteractor implements CheckoutRecipeInputBoundary {
             checkoutRecipePresenter.prepareFailView("Sorry, this recipe cannot be viewed: "
                                                             + e.getMessage() + "\nPlease try another recipe.");
         }
-
-
     }
 }
