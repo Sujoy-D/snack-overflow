@@ -9,6 +9,11 @@ import interface_adapter.navigation.NavigationController;
 import interface_adapter.search.SearchController;
 import interface_adapter.search.SearchPresenter;
 import interface_adapter.search.SearchViewModel;
+import interface_adapter.save_recipe.SaveRecipeController;
+import interface_adapter.save_recipe.SaveRecipePresenter;
+import interface_adapter.save_recipe.SaveRecipeViewModel;
+import use_case.save_recipe.SaveRecipeInteractor;
+import data_access.RecipeDataAccessObject;
 import use_case.search.SearchRecipesInputBoundary;
 import use_case.search.SearchRecipesInteractor;
 import use_case.search.SearchRecipesOutputBoundary;
@@ -16,8 +21,6 @@ import use_case.search.SearchFilters;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
@@ -28,6 +31,7 @@ public class SearchPageView implements PropertyChangeListener {
     private final NavigationController navigationController;
     private final SearchViewModel viewModel;
     private final SearchController searchController;
+    private final SaveRecipeController saveRecipeController;
 
     private JFrame frame;
     private JTextField ingredientsField;
@@ -49,6 +53,13 @@ public class SearchPageView implements PropertyChangeListener {
         SearchRecipesOutputBoundary presenter = new SearchPresenter(viewModel);
         SearchRecipesInputBoundary interactor = new SearchRecipesInteractor(gateway, presenter);
         this.searchController = new SearchController(interactor, viewModel, 5);
+
+        // Initialize Save Recipe use case
+        RecipeDataAccessObject recipeDataAccessObject = new RecipeDataAccessObject();
+        SaveRecipeViewModel saveRecipeViewModel = new SaveRecipeViewModel();
+        SaveRecipePresenter saveRecipePresenter = new SaveRecipePresenter(saveRecipeViewModel);
+        SaveRecipeInteractor saveRecipeInteractor = new SaveRecipeInteractor(recipeDataAccessObject, saveRecipePresenter);
+        this.saveRecipeController = new SaveRecipeController(saveRecipeInteractor);
 
         this.viewModel.addPropertyChangeListener(this);
     }
@@ -294,8 +305,26 @@ public class SearchPageView implements PropertyChangeListener {
         ingredientsLabel.setFont(new Font("Arial", Font.PLAIN, 13));
         ingredientsLabel.setForeground(new Color(90, 90, 90));
 
-        // Navigate to CheckoutRecipeView with the specific recipe data
-        JButton viewButton = new JButton("View recipe");
+        // Create button panel for View and Save buttons
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+        buttonPanel.setOpaque(false);
+
+        // Save Recipe Button
+        JButton saveButton = new JButton("Save");
+        saveButton.setBackground(new Color(33, 150, 83));
+        saveButton.setForeground(Color.WHITE);
+        saveButton.setFocusPainted(false);
+        saveButton.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(20, 120, 60), 2),
+                BorderFactory.createEmptyBorder(6, 12, 6, 12)
+        ));
+        saveButton.setFont(new Font("Arial", Font.BOLD, 13));
+        saveButton.setPreferredSize(new Dimension(80, 36));
+        saveButton.setOpaque(true);
+        saveButton.addActionListener(e -> saveRecipe(recipe));
+
+        // View Recipe Button
+        JButton viewButton = new JButton("View");
         viewButton.setBackground(new Color(65, 0, 140));
         viewButton.setForeground(Color.WHITE);
         viewButton.setFocusPainted(false);
@@ -303,29 +332,32 @@ public class SearchPageView implements PropertyChangeListener {
                 BorderFactory.createLineBorder(new Color(45, 0, 100), 2),
                 BorderFactory.createEmptyBorder(6, 12, 6, 12)
         ));
-        viewButton.setFont(new Font("Arial", Font.BOLD, 15));
-        viewButton.setPreferredSize(new Dimension(140, 42));
+        viewButton.setFont(new Font("Arial", Font.BOLD, 13));
+        viewButton.setPreferredSize(new Dimension(80, 36));
         viewButton.setOpaque(true);
-        viewButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Pass the specific recipe data to the checkout view
-                navigationController.executeWithRecipe("checkoutRecipe", username, recipe);
-            }
+        viewButton.addActionListener(e -> {
+            // Pass the specific recipe data to the checkout view
+            navigationController.executeWithRecipe("checkoutRecipe", username, recipe);
         });
+
+        buttonPanel.add(saveButton);
+        buttonPanel.add(viewButton);
 
         card.add(titleLabel, BorderLayout.NORTH);
         card.add(ingredientsLabel, BorderLayout.CENTER);
-        card.add(viewButton, BorderLayout.EAST);
+        card.add(buttonPanel, BorderLayout.EAST);
         return card;
     }
 
     private String formatIngredients(List<Ingredient> ingredients) {
+        if (ingredients == null || ingredients.isEmpty()) {
+            return "No ingredients available";
+        }
         return ingredients.stream()
+                .limit(3)
                 .map(Ingredient::getName)
-                .limit(6)
-                .filter(s -> !s.isEmpty())
-                .collect(Collectors.joining(", "));
+                .collect(Collectors.joining(", ")) +
+                (ingredients.size() > 3 ? "..." : "");
     }
 
     private JPanel buildFiltersPanel() {
@@ -371,5 +403,31 @@ public class SearchPageView implements PropertyChangeListener {
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         SwingUtilities.invokeLater(this::renderResults);
+    }
+
+    /**
+     * Save a recipe for the current user.
+     *
+     * @param recipe the recipe to save
+     */
+    private void saveRecipe(Recipe recipe) {
+        try {
+            saveRecipeController.execute(username, recipe);
+            // Show success message
+            JOptionPane.showMessageDialog(
+                    frame,
+                    "Recipe '" + recipe.getTitle() + "' saved successfully!",
+                    "Recipe Saved",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        } catch (Exception e) {
+            // Show error message
+            JOptionPane.showMessageDialog(
+                    frame,
+                    "Failed to save recipe: " + e.getMessage(),
+                    "Save Failed",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
 }
