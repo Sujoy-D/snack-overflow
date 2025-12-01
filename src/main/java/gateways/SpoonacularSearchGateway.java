@@ -20,15 +20,15 @@ import java.util.stream.Collectors;
  */
 public class SpoonacularSearchGateway implements SearchRecipesGateway {
     private static final String BASE_URL = "https://api.spoonacular.com/recipes/complexSearch";
-    
+
     private final JavaHttpGateway httpGateway;
     private final RecipeFactory recipeFactory;
-    
+
     public SpoonacularSearchGateway(JavaHttpGateway httpGateway, RecipeFactory recipeFactory) {
         this.httpGateway = httpGateway;
         this.recipeFactory = recipeFactory;
     }
-    
+
     @Override
     public List<Recipe> searchRecipes(String ingredientsCsv,
                                       SearchFilters filters,
@@ -49,7 +49,7 @@ public class SpoonacularSearchGateway implements SearchRecipesGateway {
             List<Recipe> fallback = searchByIngredientsFallback(trimmedIngredients, safeNumber * 3);
             recipes.addAll(filterByFilters(fallback, filters));
         }
-        
+
         recipes.sort(Comparator.comparing(this::cookingTimeOrMax)
                 .thenComparing(Recipe::getTitle, String.CASE_INSENSITIVE_ORDER));
         if (recipes.size() > safeNumber) {
@@ -57,6 +57,7 @@ public class SpoonacularSearchGateway implements SearchRecipesGateway {
         }
         return recipes;
     }
+
     
     private List<Recipe> searchComplexUntilFilled(String ingredientsCsv,
                                                   SearchFilters filters,
@@ -87,10 +88,11 @@ public class SpoonacularSearchGateway implements SearchRecipesGateway {
     }
     
     private String buildUrl(String ingredientsCsv, SearchFilters filters, int numberOfResults, int offset) {
+
         List<String> params = new ArrayList<>();
         params.add("addRecipeInformation=true");
         params.add("fillIngredients=true");
-        
+
         int safeNumber = numberOfResults > 0 ? numberOfResults : 5;
         params.add("number=" + safeNumber);
         if (offset > 0) {
@@ -100,7 +102,7 @@ public class SpoonacularSearchGateway implements SearchRecipesGateway {
         if (ingredientsCsv != null && !ingredientsCsv.trim().isEmpty()) {
             params.add("includeIngredients=" + encodeCsv(ingredientsCsv));
         }
-        
+
         if (filters != null) {
             if (filters.getMaxCookingTimeMinutes() != null) {
                 params.add("maxReadyTime=" + filters.getMaxCookingTimeMinutes());
@@ -118,10 +120,10 @@ public class SpoonacularSearchGateway implements SearchRecipesGateway {
                 params.add("type=" + encode(filters.getMealType()));
             }
         }
-        
+
         return BASE_URL + "?" + String.join("&", params);
     }
-    
+
     private List<Recipe> searchByIngredientsFallback(String ingredientsCsv, int numberOfResults) throws Exception {
         if (ingredientsCsv == null || ingredientsCsv.isEmpty()) {
             return List.of();
@@ -134,11 +136,11 @@ public class SpoonacularSearchGateway implements SearchRecipesGateway {
         String url = "https://api.spoonacular.com/recipes/findByIngredients"
                 + "?ingredients=" + encodeCsv(normalized)
                 + "&number=" + safeNumber;
-        
+
         String response = httpGateway.get(url);
         return parseFindByIngredients(response);
     }
-    
+
     private List<Recipe> parseRecipes(String responseBody) {
         List<Recipe> recipes = new ArrayList<>();
         JSONObject json = new JSONObject(responseBody);
@@ -146,26 +148,29 @@ public class SpoonacularSearchGateway implements SearchRecipesGateway {
         if (results == null) {
             return recipes;
         }
-        
+
         for (int i = 0; i < results.length(); i++) {
             JSONObject recipeJson = results.getJSONObject(i);
             int id = recipeJson.optInt("id");
             String title = recipeJson.optString("title", "Untitled Recipe");
             Integer readyInMinutes = recipeJson.has("readyInMinutes") ?
                     recipeJson.optInt("readyInMinutes") : null;
-            
+
             List<Ingredient> ingredients = new ArrayList<>();
             extractIngredients(recipeJson.optJSONArray("extendedIngredients"), ingredients);
-            
+
             if (ingredients.isEmpty()) {
                 ingredients.add(new Ingredient("Ingredients provided in response", "", ""));
             }
-            
+
+            // Get full instructions by making a separate API call
+            String instructions = getFullInstructions(id);
+
             Recipe recipe = recipeFactory.create(
                     id,
                     title,
                     ingredients,
-                    recipeJson.optString("instructions", ""),
+                    instructions,
                     extractFirst(recipeJson.optJSONArray("cuisines")),
                     readyInMinutes,
                     extractFirst(recipeJson.optJSONArray("dishTypes")),
@@ -173,28 +178,28 @@ public class SpoonacularSearchGateway implements SearchRecipesGateway {
             );
             recipes.add(recipe);
         }
-        
+
         return recipes;
     }
-    
+
     private List<Recipe> parseFindByIngredients(String responseBody) {
         List<Recipe> recipes = new ArrayList<>();
         JSONArray results = new JSONArray(responseBody);
-        
+
         for (int i = 0; i < results.length(); i++) {
             JSONObject recipeJson = results.getJSONObject(i);
-            
+
             int id = recipeJson.optInt("id");
             String title = recipeJson.optString("title", "Untitled Recipe");
-            
+
             List<Ingredient> ingredients = new ArrayList<>();
             extractIngredients(recipeJson.optJSONArray("usedIngredients"), ingredients);
             extractIngredients(recipeJson.optJSONArray("missedIngredients"), ingredients);
-            
+
             if (ingredients.isEmpty()) {
                 ingredients.add(new Ingredient("Ingredients provided in response", "", ""));
             }
-            
+
             Recipe recipe = recipeFactory.create(
                     id,
                     title,
@@ -209,7 +214,7 @@ public class SpoonacularSearchGateway implements SearchRecipesGateway {
         }
         return recipes;
     }
-    
+
     private List<Recipe> filterOutExcluded(List<Recipe> recipes, SearchFilters filters) {
         if (filters == null) {
             return recipes;
@@ -224,7 +229,7 @@ public class SpoonacularSearchGateway implements SearchRecipesGateway {
         List<String> lowered = excludes.stream()
                 .map(String::toLowerCase)
                 .collect(Collectors.toList());
-        
+
         return recipes.stream()
                 .filter(r -> r.getIngredients().stream()
                         .map(Ingredient::getName)
@@ -232,7 +237,7 @@ public class SpoonacularSearchGateway implements SearchRecipesGateway {
                         .noneMatch(lowered::contains))
                 .collect(Collectors.toList());
     }
-    
+
     private List<Recipe> filterByFilters(List<Recipe> recipes, SearchFilters filters) {
         if (filters == null) {
             return recipes;
@@ -247,11 +252,11 @@ public class SpoonacularSearchGateway implements SearchRecipesGateway {
         }
         return filtered;
     }
-    
+
     private Integer cookingTimeOrMax(Recipe recipe) {
         return recipe.getCookingTime() != null ? recipe.getCookingTime() : Integer.MAX_VALUE;
     }
-    
+
     private String extractFirst(JSONArray array) {
         if (array == null || array.isEmpty()) {
             return null;
@@ -262,7 +267,7 @@ public class SpoonacularSearchGateway implements SearchRecipesGateway {
         }
         return value;
     }
-    
+
     private void extractIngredients(JSONArray ingredientsArray, List<Ingredient> ingredients) {
         if (ingredientsArray == null) {
             return;
@@ -281,7 +286,7 @@ public class SpoonacularSearchGateway implements SearchRecipesGateway {
             }
         }
     }
-    
+
     private String encodeCsv(String csv) {
         List<String> parts = new ArrayList<>();
         for (String part : csv.split(",")) {
@@ -294,7 +299,7 @@ public class SpoonacularSearchGateway implements SearchRecipesGateway {
                 .map(this::encode)
                 .collect(Collectors.joining(","));
     }
-    
+
     private String normalizeIngredients(String ingredientsCsv) {
         List<String> cleaned = new ArrayList<>();
         for (String part : ingredientsCsv.split(",")) {
@@ -305,8 +310,51 @@ public class SpoonacularSearchGateway implements SearchRecipesGateway {
         }
         return String.join(",", cleaned);
     }
-    
+
     private String encode(String value) {
         return URLEncoder.encode(value, StandardCharsets.UTF_8);
+    }
+
+    private String getFullInstructions(int recipeId) {
+        try {
+            String url = "https://api.spoonacular.com/recipes/" + recipeId + "/information";
+            String response = httpGateway.get(url);
+            JSONObject recipeJson = new JSONObject(response);
+
+            // Try to get instructions from the response
+            String instructions = recipeJson.optString("instructions", "");
+            if (instructions != null && !instructions.trim().isEmpty()) {
+                return instructions;
+            }
+
+            // If no instructions field, try analyzedInstructions array
+            JSONArray analyzedInstructions = recipeJson.optJSONArray("analyzedInstructions");
+            if (analyzedInstructions != null && analyzedInstructions.length() > 0) {
+                StringBuilder instructionsBuilder = new StringBuilder();
+                JSONObject firstInstruction = analyzedInstructions.getJSONObject(0);
+                JSONArray steps = firstInstruction.optJSONArray("steps");
+
+                if (steps != null) {
+                    for (int i = 0; i < steps.length(); i++) {
+                        JSONObject step = steps.getJSONObject(i);
+                        int stepNumber = step.optInt("number", i + 1);
+                        String stepText = step.optString("step", "");
+                        if (!stepText.isEmpty()) {
+                            instructionsBuilder.append(stepNumber).append(". ").append(stepText);
+                            if (i < steps.length() - 1) {
+                                instructionsBuilder.append("\n\n");
+                            }
+                        }
+                    }
+                }
+                return instructionsBuilder.toString();
+            }
+
+            return "Instructions not available";
+        } catch (Exception e) {
+            // If API call fails, return empty instructions rather than breaking the whole flow
+            System.out.println("DEBUG: Failed to fetch instructions for recipe " + recipeId + ": " + e.getMessage());
+            return "Instructions not available";
+        }
     }
 }

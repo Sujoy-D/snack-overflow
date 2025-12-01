@@ -1,5 +1,7 @@
 package view;
 
+import data_access.AddRecipeDataAccessInterface;
+import data_access.UserFileDataAccess;
 import gateways.SpoonacularMealPlanAPI;
 import gateways.JavaHttpGateway;
 import interface_adapter.generate_meal_plan.MealPlanController;
@@ -29,17 +31,17 @@ public class ViewManager implements PropertyChangeListener {
     private NavigationViewModel navigationViewModel;
     private NavigationController navigationController;
     private JFrame currentFrame;
-    
+
     public ViewManager(NavigationViewModel navigationViewModel) {
         this.navigationViewModel = navigationViewModel;
         this.navigationViewModel.addPropertyChangeListener(this);
         this.navigationController = new NavigationController(navigationViewModel);
     }
-    
+
     public NavigationController getNavigationController() {
         return navigationController;
     }
-    
+
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         String currentPage = navigationViewModel.getCurrentPage();
@@ -77,15 +79,25 @@ public class ViewManager implements PropertyChangeListener {
             if (username != null) {
                 switch (currentPage) {
                 case "home":
+                    if (currentFrame != null) {
+                        currentFrame.dispose();
+                    }
                     currentFrame = HomePageView.show(username, navigationController);
                     break;
                 case "search":
+                    if (currentFrame != null) {
+                        currentFrame.dispose();
+                    }
                     currentFrame = SearchPageView.show(username, navigationController);
                     break;
                 case "saved":
-                    currentFrame = SavedPageView.show(username, navigationController);
+                    AddRecipeDataAccessInterface recipeDataAccess = new UserFileDataAccess();
+                    currentFrame = SavedRecipesView.show(username, navigationController, recipeDataAccess);
                     break;
                 case "create":
+                    if (currentFrame != null) {
+                        currentFrame.dispose();
+                    }
                     currentFrame = CreatePageView.show(username, navigationController);
                     break;
                 case "mealPlanning":
@@ -101,7 +113,16 @@ public class ViewManager implements PropertyChangeListener {
                             mealPlanViewModel
                     );
                     break;
-                }
+                case "checkoutRecipe":
+                    // Get the selected recipe from navigation data
+                    entity.Recipe selectedRecipe = navigationViewModel.getSelectedRecipe();
+
+                    if (selectedRecipe != null) {
+                        CheckoutRecipeView.show(username, navigationController, selectedRecipe);
+                    }
+
+                    navigationViewModel.setSelectedRecipe(null);
+                    break;
             }
         }
     }
