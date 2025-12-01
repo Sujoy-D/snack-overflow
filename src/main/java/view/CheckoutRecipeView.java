@@ -1,5 +1,7 @@
 package view;
 
+import data_access.UserFileDataAccess;
+import interface_adapter.navigation.NavigationViewModel;
 import data_access.CheckoutRecipeDataAccessInterface;
 import data_access.CheckoutRecipeDataAccessObject;
 import interface_adapter.checkout_recipe.CheckoutRecipeController;
@@ -7,6 +9,14 @@ import interface_adapter.checkout_recipe.CheckoutRecipePresenter;
 import interface_adapter.checkout_recipe.CheckoutRecipeState;
 import interface_adapter.checkout_recipe.CheckoutRecipeViewModel;
 import interface_adapter.navigation.NavigationController;
+import interface_adapter.tagging.AddTagController;
+import interface_adapter.tagging.AddTagPresenter;
+import interface_adapter.tagging.TaggingViewModel;
+import use_case.tagging.AddTagInputBoundary;
+import use_case.tagging.AddTagInteractor;
+import use_case.tagging.AddTagOutputBoundary;
+import data_access.TaggingDataAccessInterface;
+import data_access.UserTagFileDataAccess;
 import org.jetbrains.annotations.NotNull;
 import use_case.checkout_recipe.CheckoutRecipeInputBoundary;
 import use_case.checkout_recipe.CheckoutRecipeInteractor;
@@ -25,9 +35,14 @@ public class CheckoutRecipeView implements PropertyChangeListener {
 
     private final NavigationController navigationController;
     private final CheckoutRecipeController checkoutRecipeController;
+    private final AddTagController addTagController;
+    private final TaggingViewModel taggingViewModel;
+    private final TaggingDataAccessInterface taggingDataAccess;
     private final CheckoutRecipeViewModel checkoutRecipeViewModel;
 
     private JFrame frame;
+
+    private int recipeId = -1;
 
     // Centre panel
     private JLabel titleLabel;
@@ -54,6 +69,14 @@ public class CheckoutRecipeView implements PropertyChangeListener {
         CheckoutRecipeOutputBoundary checkoutRecipePresenter = new CheckoutRecipePresenter(checkoutRecipeViewModel);
         CheckoutRecipeInputBoundary checkoutRecipeInteractor = new CheckoutRecipeInteractor(checkoutRecipeDAO, checkoutRecipePresenter);
         this.checkoutRecipeController = new CheckoutRecipeController(checkoutRecipeInteractor);
+
+        taggingViewModel = new TaggingViewModel();
+        taggingDataAccess = new UserTagFileDataAccess();
+        AddTagOutputBoundary taggingPresenter = new AddTagPresenter(taggingViewModel);
+        AddTagInputBoundary taggingInteractor = new AddTagInteractor(taggingDataAccess, taggingPresenter);
+        this.addTagController = new AddTagController(taggingInteractor);
+
+        taggingViewModel.addPropertyChangeListener(evt -> refreshTagsFromStorage());
 
         // Listen for changes to the view model
         checkoutRecipeViewModel.addPropertyChangeListener(this);
@@ -118,6 +141,46 @@ public class CheckoutRecipeView implements PropertyChangeListener {
         saveButton.addActionListener(e -> frame.dispose());
         detailsPanel.add(saveButton);
 
+        detailsPanel.add(Box.createVerticalStrut(8));
+        // Button for adding a tag
+        JButton addTagButton = new JButton("Add Tag");
+        addTagButton.setBackground(new Color(0, 128, 0));
+        addTagButton.setForeground(Color.WHITE);
+        addTagButton.setFocusPainted(false);
+        addTagButton.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(0, 90, 0),2),
+                BorderFactory.createEmptyBorder(6, 12, 6, 12)
+        ));
+        addTagButton.setFont(new Font("Arial", Font.BOLD, 15));
+        addTagButton.addActionListener(e -> {
+            if (recipeId <= 0) {
+                JOptionPane.showMessageDialog(
+                        frame,
+                        "Recipe is not available for tagging.",
+                        "Tagging Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+
+            JFrame tagFrame = new JFrame("Add Tag");
+            tagFrame.setMinimumSize(new Dimension(480, 360));
+            tagFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+            tagFrame.setLocationRelativeTo(frame);
+
+            AddTagView addTagView = new AddTagView(
+                    tagFrame,
+                    username,
+                    recipeId,
+                    addTagController,
+                    taggingViewModel
+            );
+            tagFrame.setContentPane(addTagView);
+            tagFrame.pack();
+            tagFrame.setVisible(true);
+        });
+        detailsPanel.add(addTagButton);
+
     }
 
     public static void show(String username, NavigationController navigationController, entity.Recipe recipe) {
@@ -137,6 +200,9 @@ public class CheckoutRecipeView implements PropertyChangeListener {
      * This method triggers the use case to display the recipe data.
      */
     private void loadRecipe(entity.Recipe recipe) {
+        if (recipe != null && recipe.getRecipeId() != null) {
+            this.recipeId = recipe.getRecipeId();
+        }
         checkoutRecipeController.execute(recipe);
     }
 
@@ -198,6 +264,30 @@ public class CheckoutRecipeView implements PropertyChangeListener {
             tagsLabel.setText(tagString.toString());
         } else {
             tagsLabel.setText("");
+        }
+    }
+
+    private void refreshTagsFromStorage() {
+        if (recipeId <= 0) {
+            return; //no recipe loaded
+        }
+
+        java.util.List<String> tags = taggingDataAccess.getTagsForRecipe(username, recipeId);
+        if (tags == null || tags.isEmpty()) {
+            tagsLabel.setText("");
+        } else {
+            StringBuilder html = new StringBuilder("<html><b>Tags:</b><br>");
+            for (String tag : tags) {
+                if (tag != null && !tag.isBlank()) {
+                    html.append("• ").append(tag).append("<br>");
+                }
+            }
+            html.append("</html>");
+            tagsLabel.setText(html.toString());
+        }
+        if (frame != null) {
+            frame.revalidate();
+            frame.repaint();
         }
     }
 
