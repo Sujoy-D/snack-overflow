@@ -134,6 +134,8 @@ public class ViewManager implements PropertyChangeListener {
 
                     navigationViewModel.setSelectedRecipe(null);
                     break;
+
+                }
             }
         }
     }
