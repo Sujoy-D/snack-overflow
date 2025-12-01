@@ -32,7 +32,7 @@ public class UserTagFileDataAccess implements TaggingDataAccessInterface {
                 Map<Integer, List<String>> userMap = result.computeIfAbsent(username, k -> new HashMap<>());
                 List<String> tags = userMap.computeIfAbsent(recipeID, k -> new ArrayList<>());
                 if (!tags.contains(tagName)) {
-                    tags.add(tagName);
+                    tags.add(tagName.toLowerCase().trim());
                 }
             }
         }  catch (IOException e) {
@@ -63,7 +63,7 @@ public class UserTagFileDataAccess implements TaggingDataAccessInterface {
         Map<Integer, List<String>> userMap = allTags.computeIfAbsent(username, k -> new HashMap<>());
         List<String> tags = userMap.computeIfAbsent(recipeID, k -> new ArrayList<>());
         if (!tags.contains(tagName)) {
-            tags.add(tagName);
+            tags.add(tagName.toLowerCase().trim());
             saveAllTags(allTags);
         }
 
