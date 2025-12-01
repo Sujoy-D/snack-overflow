@@ -1,22 +1,27 @@
 package view;
 
-import data_access.UserFileDataAccess;
+import data_access.*;
+import gateways.JavaHttpGateway;
 import interface_adapter.navigation.NavigationViewModel;
-import data_access.CheckoutRecipeDataAccessInterface;
-import data_access.CheckoutRecipeDataAccessObject;
 import interface_adapter.checkout_recipe.CheckoutRecipeController;
 import interface_adapter.checkout_recipe.CheckoutRecipePresenter;
 import interface_adapter.checkout_recipe.CheckoutRecipeState;
 import interface_adapter.checkout_recipe.CheckoutRecipeViewModel;
 import interface_adapter.navigation.NavigationController;
+import interface_adapter.similar_recipes.SimilarRecipesController;
+import interface_adapter.similar_recipes.SimilarRecipesPresenter;
+import interface_adapter.similar_recipes.SimilarRecipesState;
+import interface_adapter.similar_recipes.SimilarRecipesViewModel;
 import interface_adapter.tagging.AddTagController;
 import interface_adapter.tagging.AddTagPresenter;
 import interface_adapter.tagging.TaggingViewModel;
+import use_case.similar_recipes.SimilarRecipesInputBoundary;
+import use_case.similar_recipes.SimilarRecipesInputData;
+import use_case.similar_recipes.SimilarRecipesInteractor;
+import use_case.similar_recipes.SimilarRecipesOutputBoundary;
 import use_case.tagging.AddTagInputBoundary;
 import use_case.tagging.AddTagInteractor;
 import use_case.tagging.AddTagOutputBoundary;
-import data_access.TaggingDataAccessInterface;
-import data_access.UserTagFileDataAccess;
 import org.jetbrains.annotations.NotNull;
 import use_case.checkout_recipe.CheckoutRecipeInputBoundary;
 import use_case.checkout_recipe.CheckoutRecipeInteractor;
@@ -24,9 +29,12 @@ import use_case.checkout_recipe.CheckoutRecipeOutputBoundary;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class CheckoutRecipeView implements PropertyChangeListener {
@@ -37,6 +45,8 @@ public class CheckoutRecipeView implements PropertyChangeListener {
     private final CheckoutRecipeController checkoutRecipeController;
     private final AddTagController addTagController;
     private final TaggingViewModel taggingViewModel;
+    private final SimilarRecipesViewModel similarRecipesViewModel;
+    private final SimilarRecipesController similarRecipesController;
     private final TaggingDataAccessInterface taggingDataAccess;
     private final CheckoutRecipeViewModel checkoutRecipeViewModel;
 
@@ -65,10 +75,18 @@ public class CheckoutRecipeView implements PropertyChangeListener {
 
         checkoutRecipeViewModel = new CheckoutRecipeViewModel();
 
+
         CheckoutRecipeDataAccessInterface checkoutRecipeDAO = new CheckoutRecipeDataAccessObject();
         CheckoutRecipeOutputBoundary checkoutRecipePresenter = new CheckoutRecipePresenter(checkoutRecipeViewModel);
         CheckoutRecipeInputBoundary checkoutRecipeInteractor = new CheckoutRecipeInteractor(checkoutRecipeDAO, checkoutRecipePresenter);
         this.checkoutRecipeController = new CheckoutRecipeController(checkoutRecipeInteractor);
+
+        similarRecipesViewModel = new SimilarRecipesViewModel();
+
+        SimilarRecipeDataAccessInterface similarRecipesDAO = new DBSimilarRecipesDataAccessObject(new JavaHttpGateway());
+        SimilarRecipesOutputBoundary similarRecipesPresenter = new SimilarRecipesPresenter(new SimilarRecipesViewModel());
+        SimilarRecipesInputBoundary similarRecipesInteractor = new SimilarRecipesInteractor(similarRecipesDAO, similarRecipesPresenter);
+        this.similarRecipesController = new SimilarRecipesController(similarRecipesInteractor, new SimilarRecipesInputData(recipeId));
 
         taggingViewModel = new TaggingViewModel();
         taggingDataAccess = new UserTagFileDataAccess();
@@ -128,19 +146,6 @@ public class CheckoutRecipeView implements PropertyChangeListener {
         instructionsLabel.setBackground(Color.WHITE);
         mainPanel.add(instructionsLabel);
 
-        // Button for saving recipe
-        JButton saveButton = new JButton("Save Recipe");
-        saveButton.setBackground(new Color(65, 0, 140));
-        saveButton.setForeground(Color.WHITE);
-        saveButton.setFocusPainted(false);
-        saveButton.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(45, 0, 100), 2),
-                BorderFactory.createEmptyBorder(6, 12, 6, 12)
-        ));
-        saveButton.setFont(new Font("Arial", Font.BOLD, 15));
-        saveButton.addActionListener(e -> frame.dispose());
-        detailsPanel.add(saveButton);
-
         detailsPanel.add(Box.createVerticalStrut(8));
         // Button for adding a tag
         JButton addTagButton = new JButton("Add Tag");
@@ -180,6 +185,47 @@ public class CheckoutRecipeView implements PropertyChangeListener {
             tagFrame.setVisible(true);
         });
         detailsPanel.add(addTagButton);
+
+
+        detailsPanel.add(Box.createVerticalStrut(8));
+        // Button for viewing similar recipes
+        JButton similarButton = new JButton("View Similar Recipes");
+        similarButton.setBackground(new Color(65, 0, 140));
+        similarButton.setForeground(Color.WHITE);
+        similarButton.setFocusPainted(false);
+        similarButton.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(45, 0, 100), 2),
+                BorderFactory.createEmptyBorder(6, 12, 6, 12)
+        ));
+
+        similarButton.setFont(new Font("Arial", Font.BOLD, 15));
+        detailsPanel.add(similarButton);
+        similarButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Pass the specific recipe data to the checkout view
+                similarRecipesController.execute();
+                List<Integer> recipeIDs = similarRecipesViewModel.getState().getSimilarRecipes();
+
+                detailsPanel.remove(similarButton);
+
+                if (recipeIDs.isEmpty()) {
+                    JLabel noSimilarLabel = new JLabel();
+                    noSimilarLabel.setText("No similar recipes found.");
+                    detailsPanel.add(noSimilarLabel);
+                }
+                else {
+                    for (Integer id : recipeIDs) {
+                        JLabel idLabel = new JLabel();
+                        idLabel.setText(id.toString());
+                        detailsPanel.add(idLabel);
+                    }
+                }
+
+                detailsPanel.revalidate();
+                detailsPanel.repaint();
+            }
+        });
 
     }
 
