@@ -64,11 +64,6 @@ public class CheckoutRecipeView implements PropertyChangeListener {
 
         this.checkoutRecipeViewModel = new CheckoutRecipeViewModel();
 
-        CheckoutRecipeDataAccessInterface checkoutRecipeDAO = new CheckoutRecipeDataAccessObject();
-        CheckoutRecipeOutputBoundary checkoutRecipePresenter = new CheckoutRecipePresenter(checkoutRecipeViewModel);
-        CheckoutRecipeInputBoundary checkoutRecipeInteractor = new CheckoutRecipeInteractor(checkoutRecipeDAO, checkoutRecipePresenter);
-        this.checkoutRecipeController = new CheckoutRecipeController(checkoutRecipeInteractor);
-
         taggingViewModel = new TaggingViewModel();
         taggingDataAccess = new AddTagDataAccessObject();
         AddTagOutputBoundary taggingPresenter = new AddTagPresenter(taggingViewModel);
