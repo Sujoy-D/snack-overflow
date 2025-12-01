@@ -1,5 +1,7 @@
 package view;
 
+import data_access.UserFileDataAccess;
+import interface_adapter.navigation.NavigationViewModel;
 import data_access.CheckoutRecipeDataAccessInterface;
 import data_access.CheckoutRecipeDataAccessObject;
 import interface_adapter.checkout_recipe.CheckoutRecipeController;
@@ -368,46 +370,5 @@ public class CheckoutRecipeView implements PropertyChangeListener {
             frame.revalidate();
             frame.repaint();
         }
-    }
-    // TEMPORARY MAIN FOR UI TESTING ONLY – remove before final submission
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            // Fake logged-in user
-            String username = "alice";
-
-            // Minimal navigation setup (we won't actually navigate in this test)
-            interface_adapter.navigation.NavigationViewModel navVM =
-                    new interface_adapter.navigation.NavigationViewModel();
-            interface_adapter.navigation.NavigationController navController =
-                    new interface_adapter.navigation.NavigationController(navVM);
-
-            // Build some dummy ingredients
-            java.util.List<entity.Ingredient> ingredients = new java.util.ArrayList<>();
-            ingredients.add(new entity.Ingredient("Flour", "2", "cups"));
-            ingredients.add(new entity.Ingredient("Eggs", "3", "pcs"));
-            ingredients.add(new entity.Ingredient("Milk", "1.5", "cups"));
-
-            // Build some dummy tags
-            java.util.List<entity.Tag> tags = new java.util.ArrayList<>();
-            tags.add(new entity.Tag(1, "breakfast"));
-            tags.add(new entity.Tag(2, "quick"));
-            tags.add(new entity.Tag(3, "sweet"));
-
-            // Dummy recipe
-            entity.Recipe demoRecipe = new entity.Recipe(
-                    101,                    // recipeId
-                    ingredients,             // ingredients
-                    "Test Pancake Stack",    // title
-                    "1. Mix ingredients.\n2. Fry on pan.\n3. Serve warm.", // instructions
-                    "American",              // cuisine
-                    15,                      // cookingTime (minutes)
-                    "breakfast",             // mealType
-                    2,                       // servingSize
-                    tags                     // tags
-            );
-
-            // Show the checkout view with our sample recipe
-            CheckoutRecipeView.show(username, navController, demoRecipe);
-        });
     }
 }
