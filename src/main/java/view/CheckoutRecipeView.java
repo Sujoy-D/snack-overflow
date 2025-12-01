@@ -110,6 +110,8 @@ public class CheckoutRecipeView implements PropertyChangeListener {
         JPanel mainPanel = new JPanel();
         mainPanel.setBackground(new Color(240, 235, 255));
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
         frame.add(mainPanel, BorderLayout.CENTER);
 
         // Right panel (Cuisine + Cooking time + Type etc.)
@@ -120,6 +122,7 @@ public class CheckoutRecipeView implements PropertyChangeListener {
         titleLabel = new JLabel();
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
         titleLabel.setForeground(new Color(55, 0, 120));
+        titleLabel.setBackground(new Color(55, 0, 120));
         titleLabel.setHorizontalAlignment(SwingConstants.LEFT);
         JPanel titlePanel = new JPanel();
         titlePanel.add(titleLabel);
@@ -129,21 +132,33 @@ public class CheckoutRecipeView implements PropertyChangeListener {
         JLabel ingredientsHeaderLabel = new JLabel("Ingredients:");
         ingredientsHeaderLabel.setFont(new Font("Arial", Font.BOLD, 16));
         ingredientsHeaderLabel.setForeground(new Color(70, 50, 120));
+        ingredientsHeaderLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         mainPanel.add(ingredientsHeaderLabel);
 
         ingredientsPanel = new JPanel();
         ingredientsPanel.setBackground(Color.WHITE);
         ingredientsPanel.setLayout(new BoxLayout(ingredientsPanel, BoxLayout.Y_AXIS));
+        ingredientsPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(240, 235, 255), 20),
+                BorderFactory.createEmptyBorder(6, 12, 6, 12)
+        ));
         mainPanel.add(ingredientsPanel);
 
         // Instructions section
         JLabel instructionsHeaderLabel = new JLabel("Instructions:");
         instructionsHeaderLabel.setFont(new Font("Arial", Font.BOLD, 16));
         instructionsHeaderLabel.setForeground(new Color(70, 50, 120));
+        instructionsHeaderLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         mainPanel.add(instructionsHeaderLabel);
 
         instructionsLabel = new JLabel();
         instructionsLabel.setBackground(Color.WHITE);
+        instructionsLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        ingredientsPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(240, 235, 255), 20),
+                BorderFactory.createEmptyBorder(6, 12, 6, 12)
+        ));
+
         mainPanel.add(instructionsLabel);
 
         detailsPanel.add(Box.createVerticalStrut(8));
@@ -256,7 +271,7 @@ public class CheckoutRecipeView implements PropertyChangeListener {
     private JPanel buildDetailsPanel() {
         JPanel detailsPanel = new JPanel();
         detailsPanel.setBackground(Color.WHITE);
-        detailsPanel.setPreferredSize(new Dimension(200, 0));
+        detailsPanel.setPreferredSize(new Dimension(300, 0));
         detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
         detailsPanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 1, 0, 0, new Color(220, 220, 235)),
@@ -382,14 +397,14 @@ public class CheckoutRecipeView implements PropertyChangeListener {
 
         if (recipeInfo != null) {
             String title = recipeInfo.get("title");
-            titleLabel.setText(title != null ? title : "Recipe Details");
+            titleLabel.setText("<html><body>" + title + "</body></html>");
 
             String instructions = recipeInfo.get("instructions");
             if (instructions != null && !instructions.trim().isEmpty()) {
-                instructionsLabel.setText("<html><body style='width: 400px; font-family: Arial; font-size: 13px; line-height: 1.4;'>" +
+                instructionsLabel.setText("<html><body style=font-family: Arial; font-size: 13px; line-height: 1.4;'>" +
                         instructions + "</body></html>");
             } else {
-                instructionsLabel.setText("<html><body style='width: 400px; font-family: Arial; font-size: 13px; color: #888;'>" +
+                instructionsLabel.setText("<html><body style=font-family: Arial; font-size: 13px; color: #888;'>" +
                         "No instructions available</body></html>");
             }
 
