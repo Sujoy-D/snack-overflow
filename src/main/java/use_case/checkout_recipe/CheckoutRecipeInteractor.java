@@ -12,11 +12,11 @@ public class CheckoutRecipeInteractor implements CheckoutRecipeInputBoundary {
 
     private final CheckoutRecipeDataAccessInterface checkoutRecipeDAO;
     private final CheckoutRecipeOutputBoundary checkoutRecipePresenter;
-    private final TaggingDataAccessInterface taggingDataAccess;
+    private final AddTagDataAccessInterface taggingDataAccess;
 
     public CheckoutRecipeInteractor(CheckoutRecipeDataAccessInterface checkoutRecipeDAO,
                                     CheckoutRecipeOutputBoundary checkoutRecipePresenter,
-                                    TaggingDataAccessInterface taggingDataAccess) {
+                                    AddTagDataAccessInterface taggingDataAccess) {
         this.checkoutRecipeDAO = checkoutRecipeDAO;
         this.checkoutRecipePresenter = checkoutRecipePresenter;
         this.taggingDataAccess = taggingDataAccess;

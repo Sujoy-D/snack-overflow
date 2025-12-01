@@ -64,17 +64,14 @@ public class CheckoutRecipeView implements PropertyChangeListener {
 
         this.checkoutRecipeViewModel = new CheckoutRecipeViewModel();
 
-        CheckoutRecipeDataAccessInterface checkoutRecipeDAO = new CheckoutRecipeDataAccessObject();
-        CheckoutRecipeOutputBoundary checkoutRecipePresenter = new CheckoutRecipePresenter(checkoutRecipeViewModel);
-        CheckoutRecipeInputBoundary checkoutRecipeInteractor = new CheckoutRecipeInteractor(checkoutRecipeDAO, checkoutRecipePresenter);
-        this.checkoutRecipeController = new CheckoutRecipeController(checkoutRecipeInteractor);
-
+        // Initialize tagging components first
         taggingViewModel = new TaggingViewModel();
         taggingDataAccess = new AddTagDataAccessObject();
         AddTagOutputBoundary taggingPresenter = new AddTagPresenter(taggingViewModel);
         AddTagInputBoundary taggingInteractor = new AddTagInteractor(taggingDataAccess, taggingPresenter);
         this.addTagController = new AddTagController(taggingInteractor);
 
+        // Initialize checkout recipe components with tagging data access
         CheckoutRecipeDataAccessInterface checkoutRecipeDAO = new CheckoutRecipeDataAccessObject();
         CheckoutRecipeOutputBoundary checkoutRecipePresenter = new CheckoutRecipePresenter(checkoutRecipeViewModel);
         CheckoutRecipeInputBoundary checkoutRecipeInteractor = new CheckoutRecipeInteractor(checkoutRecipeDAO, checkoutRecipePresenter, taggingDataAccess);
@@ -212,6 +209,9 @@ public class CheckoutRecipeView implements PropertyChangeListener {
             this.recipeId = recipe.getRecipeId();
         }
         checkoutRecipeController.execute(username, recipe);
+        
+        // Refresh tags from storage to ensure they persist
+        refreshTagsFromStorage();
     }
 
     @NotNull
