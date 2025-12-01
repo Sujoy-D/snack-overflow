@@ -35,36 +35,70 @@ public class SpoonacularSearchGateway implements SearchRecipesGateway {
                                       int numberOfResults) throws Exception {
         boolean hasFilters = filters != null && !filters.isEmpty();
         String trimmedIngredients = ingredientsCsv != null ? ingredientsCsv.trim() : "";
-
+        int safeNumber = numberOfResults > 0 ? numberOfResults : 5;
+        
         // if no filters, use the more permissive findByIngredients endpoint to maximize matches
         if (!hasFilters) {
-            return searchByIngredientsFallback(trimmedIngredients, numberOfResults);
+            return searchByIngredientsFallback(trimmedIngredients, safeNumber);
         }
-
-        String url = buildUrl(trimmedIngredients, filters, numberOfResults);
-        String response = httpGateway.get(url);
-        List<Recipe> recipes = parseRecipes(response);
-        recipes = filterByFilters(recipes, filters);
-
+        
+        List<Recipe> recipes = searchComplexUntilFilled(trimmedIngredients, filters, safeNumber);
+        
         // if complex search returns nothing but we have include ingredients, fall back to regular permissive search
         if (recipes.isEmpty() && !trimmedIngredients.isEmpty()) {
-            List<Recipe> fallback = searchByIngredientsFallback(trimmedIngredients, numberOfResults);
+            List<Recipe> fallback = searchByIngredientsFallback(trimmedIngredients, safeNumber * 3);
             recipes.addAll(filterByFilters(fallback, filters));
         }
 
         recipes.sort(Comparator.comparing(this::cookingTimeOrMax)
                 .thenComparing(Recipe::getTitle, String.CASE_INSENSITIVE_ORDER));
+        if (recipes.size() > safeNumber) {
+            return new ArrayList<>(recipes.subList(0, safeNumber));
+        }
         return recipes;
     }
 
-    private String buildUrl(String ingredientsCsv, SearchFilters filters, int numberOfResults) {
+    
+    private List<Recipe> searchComplexUntilFilled(String ingredientsCsv,
+                                                  SearchFilters filters,
+                                                  int numberOfResults) throws Exception {
+        int batchSize = Math.max(numberOfResults * 2, numberOfResults + 5);
+        int offset = 0;
+        int attempts = 0;
+        int maxAttempts = 4;
+        List<Recipe> collected = new ArrayList<>();
+        
+        // over-fetch in batches because Spoonacular may return recipes we later drop via filters
+        while (collected.size() < numberOfResults && attempts < maxAttempts) {
+            String url = buildUrl(ingredientsCsv, filters, batchSize, offset);
+            String response = httpGateway.get(url);
+            List<Recipe> page = parseRecipes(response);
+            List<Recipe> filtered = filterByFilters(page, filters);
+            collected.addAll(filtered);
+            
+            if (page.size() < batchSize) {
+                break; // likely no more results to page through
+            }
+            
+            offset += batchSize;
+            attempts++;
+        }
+        
+        return collected;
+    }
+    
+    private String buildUrl(String ingredientsCsv, SearchFilters filters, int numberOfResults, int offset) {
+
         List<String> params = new ArrayList<>();
         params.add("addRecipeInformation=true");
         params.add("fillIngredients=true");
 
         int safeNumber = numberOfResults > 0 ? numberOfResults : 5;
         params.add("number=" + safeNumber);
-
+        if (offset > 0) {
+            params.add("offset=" + offset);
+        }
+        
         if (ingredientsCsv != null && !ingredientsCsv.trim().isEmpty()) {
             params.add("includeIngredients=" + encodeCsv(ingredientsCsv));
         }

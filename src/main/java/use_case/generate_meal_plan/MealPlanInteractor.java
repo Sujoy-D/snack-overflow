@@ -1,6 +1,6 @@
 package use_case.generate_meal_plan;
 
-import java.util.HashMap;
+import entity.Recipe;
 import java.util.List;
 import java.util.Map;
 
@@ -21,7 +21,7 @@ public class MealPlanInteractor implements MealPlanInputBoundary {
     @Override
     public void execute(MealPlanInputData inputData) {
         try {
-            Map<String, List<String>> weeklyPlan =
+            Map<String, List<Recipe>> weeklyPlan =
                     mealPlanAPI.generateWeeklyMealPlan(
                             inputData.getDiet(),
                             inputData.getCalorieLevel(),

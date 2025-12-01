@@ -1,5 +1,6 @@
 package use_case.generate_meal_plan;
 
+import entity.Recipe;
 import java.util.List;
 import java.util.Map;
 
@@ -12,16 +13,16 @@ import java.util.Map;
  */
 public class MealPlanOutputData {
 
-    private final Map<String, List<String>> weeklyPlan;
+    private final Map<String, List<Recipe>> weeklyPlan;
     private final String errorMessage;
 
-    public MealPlanOutputData(Map<String, List<String>> weeklyPlan,
+    public MealPlanOutputData(Map<String, List<Recipe>> weeklyPlan,
                               String errorMessage) {
         this.weeklyPlan = weeklyPlan;
         this.errorMessage = errorMessage;
     }
 
-    public Map<String, List<String>> getWeeklyPlan() {
+    public Map<String, List<Recipe>> getWeeklyPlan() {
         return weeklyPlan;
     }
 
