@@ -8,12 +8,24 @@ import entity.Recipe;
 public class CheckoutRecipeInputData {
 
     private final Recipe recipe;
+    private final String username;
 
-    public CheckoutRecipeInputData(Recipe recipe) {
+    public CheckoutRecipeInputData(Recipe recipe, String username) {
         this.recipe = recipe;
+        this.username = username;
     }
+
+    public String getUsername() { return username; }
 
     public Recipe getRecipe() {
         return recipe;
+    }
+
+    public Integer getRecipeId() {
+        if (recipe != null) {
+            return recipe.getRecipeId();
+        } else {
+            return null;
+        }
     }
 }

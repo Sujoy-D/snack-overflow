@@ -62,7 +62,7 @@ public class CheckoutRecipeView implements PropertyChangeListener {
         this.username = username;
         this.navigationController = navigationController;
 
-        checkoutRecipeViewModel = new CheckoutRecipeViewModel();
+        this.checkoutRecipeViewModel = new CheckoutRecipeViewModel();
 
         CheckoutRecipeDataAccessInterface checkoutRecipeDAO = new CheckoutRecipeDataAccessObject();
         CheckoutRecipeOutputBoundary checkoutRecipePresenter = new CheckoutRecipePresenter(checkoutRecipeViewModel);
@@ -74,6 +74,11 @@ public class CheckoutRecipeView implements PropertyChangeListener {
         AddTagOutputBoundary taggingPresenter = new AddTagPresenter(taggingViewModel);
         AddTagInputBoundary taggingInteractor = new AddTagInteractor(taggingDataAccess, taggingPresenter);
         this.addTagController = new AddTagController(taggingInteractor);
+
+        CheckoutRecipeDataAccessInterface checkoutRecipeDAO = new CheckoutRecipeDataAccessObject();
+        CheckoutRecipeOutputBoundary checkoutRecipePresenter = new CheckoutRecipePresenter(checkoutRecipeViewModel);
+        CheckoutRecipeInputBoundary checkoutRecipeInteractor = new CheckoutRecipeInteractor(checkoutRecipeDAO, checkoutRecipePresenter, taggingDataAccess);
+        this.checkoutRecipeController = new CheckoutRecipeController(checkoutRecipeInteractor);
 
         taggingViewModel.addPropertyChangeListener(evt -> refreshTagsFromStorage());
 
@@ -206,7 +211,7 @@ public class CheckoutRecipeView implements PropertyChangeListener {
         if (recipe != null && recipe.getRecipeId() != null) {
             this.recipeId = recipe.getRecipeId();
         }
-        checkoutRecipeController.execute(recipe);
+        checkoutRecipeController.execute(username, recipe);
     }
 
     @NotNull
