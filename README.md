@@ -128,3 +128,14 @@ change the font size or zoom in/out of elements could be useful.
 
 In summary, accessibility (and comfort) settings would include a higher variety of themes and component colour choices,
 and a font size option or a zoom in/out feature.
+
+---
+## Summary
+
+All in all, SnackOverflow was designed as a tool with any cook in mind: the ones daring to try out new recipes, the ones
+looking for ideas for their next family reunion meal, the ones finding it complicated to come up with meal plans for 
+their week that meet their dietary restrictions and preferences, and many more.
+
+All of the features that were implemented in SnackOverflow ensured to respond to all of these cases in the best way 
+possible. At the same time, we realize that this project, albeit functioning, has the opportunity to be expanded upon 
+much more, with a multitude of ideas for both functional and quality of life features.
