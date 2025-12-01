@@ -2,7 +2,8 @@
 
 We are the SnackOverflow Team! Our goal? Make you find your next meal in an intuitive app.
 
-## What for?
+---
+## Features and Functionalities
 
 The SnackOverflow app has a variety of functionalities to respond to all your culinary needs thanks to the Spoonacular 
 Meal API (see below for more details).
@@ -29,7 +30,6 @@ as ingredients list and instructions.
 
 All of these functionalities are also bundled within an account system with username and password, where saved and 
 user-created recipes are stored in our database. To find your saved recipes, you just need to log into your account!
-
 
 ---
 
@@ -91,4 +91,4 @@ stories.
 - [4] Adding a "preference" system for weighted similarities
 - [6] Adding a print (to PDF) mechanism for recipes
 - [6] Let the user add notes/ratings to recipes
-- [2] add more filters (can do so for almost all data given in API requests)
+- [2] add more filters based on the many more details returned by API calls
