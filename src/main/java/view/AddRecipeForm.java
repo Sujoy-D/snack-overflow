@@ -1,6 +1,6 @@
 package view;
 
-import data_access.UserFileDataAccess;
+import data_access.RecipeDataAccessObject;
 import entity.Ingredient;
 import entity.Tag;
 
@@ -15,7 +15,6 @@ import interface_adapter.add_recipe.AddRecipePresenter;
 import interface_adapter.add_recipe.AddRecipeViewModel;
 import interface_adapter.navigation.NavigationController;
 import use_case.add_recipe.AddRecipeInteractor;
-import view.ViewManager;
 
 public class AddRecipeForm {
 
@@ -77,7 +76,7 @@ public class AddRecipeForm {
         recipeInfoPanel.add(mealTypeLabel);
         recipeInfoPanel.add(mealTypeField);
 
-        JLabel tagsLabel = new JLabel("Tags:");
+        JLabel tagsLabel = new JLabel("Tags (eg. warm,yum,grub):");
         tagsLabel.setFont(labelFont);
         tagsLabel.setForeground(labelColor);
         JTextField tagsField = form.styledTextField();
@@ -88,12 +87,16 @@ public class AddRecipeForm {
         JPanel ingredientsPanel = new JPanel(new BorderLayout(10, 10));
         ingredientsPanel.setBorder(BorderFactory.createTitledBorder("Ingredients"));
         ingredientsPanel.setBackground(new Color(240, 235, 255));
+        ingredientsPanel.setPreferredSize(new Dimension(600, 150)); // optional
 
         String[] columnNames = {"Ingredient", "Quantity", "Unit"};
         DefaultTableModel ingredientsModel = new DefaultTableModel(columnNames, 1);
         JTable ingredientsTable = new JTable(ingredientsModel);
+        ingredientsTable.setShowGrid(true);
+        ingredientsTable.setGridColor(Color.GRAY);
 
         JScrollPane ingScroll = new JScrollPane(ingredientsTable);
+        ingScroll.setPreferredSize(new Dimension(600, 120)); // <-- control table height
         ingredientsPanel.add(ingScroll, BorderLayout.CENTER);
 
         JPanel addIngPanel = new JPanel();
@@ -111,6 +114,8 @@ public class AddRecipeForm {
         JPanel instructionsPanel = new JPanel(new BorderLayout(10, 10));
         instructionsPanel.setBackground(new Color(240, 235, 255));
         instructionsPanel.setBorder(BorderFactory.createTitledBorder("Instructions"));
+        instructionsPanel.setPreferredSize(new Dimension(600, 150)); // same as ingredients panel
+
 
         JTextArea instructionsTextArea = new JTextArea(6, 20);
         instructionsTextArea.setLineWrap(true);
@@ -122,14 +127,13 @@ public class AddRecipeForm {
         mainPanel.add(instructionsPanel);
 
         // ================= BUTTON PANEL =================
-        JPanel bottomButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        JPanel bottomButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         bottomButtonPanel.setBackground(new Color(240, 235, 255));
 
         JButton addButton = form.styledButton("Add Recipe");
         JButton cancelButton = form.styledButton("Cancel");
 
         bottomButtonPanel.add(addButton);
-        bottomButtonPanel.add(cancelButton);
 
         cancelButton.addActionListener(e -> {
             // Close the current frame
@@ -141,13 +145,50 @@ public class AddRecipeForm {
         // ========== ADD BUTTON ACTION =============
         addButton.addActionListener(e -> {
             try {
-                String title = recipeNameField.getText();
-                int servingSize = Integer.parseInt(servingSizeField.getText().trim());
-                String cuisine = cuisineField.getText();
-                int cookingTime = Integer.parseInt(cookingTimeField.getText().trim());
-                String mealType = mealTypeField.getText();
-                String tagText = tagsField.getText();
-                String instructions = instructionsTextArea.getText();
+                // ================= VALIDATION =================
+                String title = recipeNameField.getText().trim();
+                if (title.isEmpty()) {
+                    JOptionPane.showMessageDialog(frame, "Title must not be empty.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                // Validate serving size
+                String servingSizeText = servingSizeField.getText().trim();
+                if (servingSizeText.isEmpty()) {
+                    JOptionPane.showMessageDialog(frame, "Serving size must not be empty.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                int servingSize;
+                try {
+                    servingSize = Integer.parseInt(servingSizeText);
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(frame, "Serving size must be an integer.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                // Validate cooking time
+                String cookingTimeText = cookingTimeField.getText().trim();
+                int cookingTime;
+                try {
+                    cookingTime = Integer.parseInt(cookingTimeText);
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(frame, "Cooking time must be an integer.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                String cuisine = cuisineField.getText().trim();
+                String mealType = mealTypeField.getText().trim();
+                String instructions = instructionsTextArea.getText().trim();
+
+                if (instructions.isEmpty()) {
+                    JOptionPane.showMessageDialog(frame, "Instructions must not be empty.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
 
                 // Collect ingredients
                 List<Ingredient> ingredients = new ArrayList<>();
@@ -160,8 +201,14 @@ public class AddRecipeForm {
                         ingredients.add(new Ingredient(name, qty, unit));
                     }
                 }
+                if (ingredients.isEmpty()) {
+                    JOptionPane.showMessageDialog(frame, "Ingredients must not be empty.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
 
                 // Collect tags
+                String tagText = tagsField.getText();
                 List<Tag> tagList = new ArrayList<>();
                 if (tagText != null && !tagText.isEmpty()) {
                     int id = 1;
@@ -173,12 +220,11 @@ public class AddRecipeForm {
                     }
                 }
 
-                // INTERACTOR SETUP
+                // ================= INTERACTOR SETUP =================
                 AddRecipeViewModel vm = new AddRecipeViewModel();
                 AddRecipePresenter presenter = new AddRecipePresenter(vm);
-                UserFileDataAccess data = new UserFileDataAccess();  // TODO replace w Mongo
+                RecipeDataAccessObject data = new RecipeDataAccessObject();
                 AddRecipeInteractor interactor = new AddRecipeInteractor(data, presenter, username);
-
                 AddRecipeController controller = new AddRecipeController(interactor);
 
                 controller.addRecipe(
@@ -193,8 +239,13 @@ public class AddRecipeForm {
                         tagList
                 );
 
+                // ✅ Show success message
+                JOptionPane.showMessageDialog(frame, "Recipe \"" + title + "\" saved successfully!",
+                        "Success", JOptionPane.INFORMATION_MESSAGE);
+
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(frame, "Invalid input: " + ex.getMessage());
+                JOptionPane.showMessageDialog(frame, "Unexpected error: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
 
@@ -218,10 +269,11 @@ public class AddRecipeForm {
     private JButton styledButton(String text) {
         JButton btn = new JButton(text);
         btn.setFont(new Font("Arial", Font.BOLD, 14));
-        btn.setBackground(new Color(138, 43, 226));
+        btn.setOpaque(true);
+        btn.setBorderPainted(false);
+        btn.setBackground(new Color(75, 0, 130));
         btn.setForeground(new Color(255, 255, 255));
         btn.setFocusPainted(false);
-        btn.setPreferredSize(new Dimension(120, 35));
         return btn;
     }
 }

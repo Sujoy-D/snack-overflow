@@ -12,7 +12,7 @@ public class CheckoutRecipeController {
         this.checkoutRecipeInteractor = checkoutRecipeInteractor;
     }
 
-    public void execute(Recipe recipe) {
-        checkoutRecipeInteractor.execute(new CheckoutRecipeInputData(recipe));
+    public void execute(String username, Recipe recipe) {
+        checkoutRecipeInteractor.execute(new CheckoutRecipeInputData(recipe, username));
     }
 }

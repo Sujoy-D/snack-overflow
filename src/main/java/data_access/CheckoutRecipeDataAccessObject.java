@@ -3,6 +3,7 @@ package data_access;
 import entity.Ingredient;
 import entity.Recipe;
 import entity.Tag;
+import use_case.checkout_recipe.CheckoutRecipeDataAccessInterface;
 
 import java.util.ArrayList;
 import java.util.HashMap;

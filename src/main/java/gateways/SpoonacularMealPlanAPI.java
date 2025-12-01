@@ -149,4 +149,26 @@ public class SpoonacularMealPlanAPI implements MealPlanDataAccessInterface {
             return null;
         }
     }
+
+    /**
+     * This implementation only handles API operations for generating meal plans.
+     * Use MealPlanDataAccessObject for storing meal plans to persistent storage.
+     *
+     * @throws UnsupportedOperationException always, as this implementation doesn't support storage operations
+     */
+    @Override
+    public void saveMealPlan(String username, Map<String, List<Recipe>> mealPlan) {
+        throw new UnsupportedOperationException("SpoonacularMealPlanAPI only handles API operations. Use MealPlanDataAccessObject for storing meal plans to persistent storage.");
+    }
+
+    /**
+     * This implementation only handles API operations for generating meal plans.
+     * Use MealPlanDataAccessObject for loading meal plans from persistent storage.
+     *
+     * @throws UnsupportedOperationException always, as this implementation doesn't support storage operations
+     */
+    @Override
+    public Map<String, List<Recipe>> loadMealPlan(String username) {
+        throw new UnsupportedOperationException("SpoonacularMealPlanAPI only handles API operations. Use MealPlanDataAccessObject for loading meal plans from persistent storage.");
+    }
 }

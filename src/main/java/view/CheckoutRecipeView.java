@@ -1,12 +1,28 @@
 package view;
 
-import data_access.CheckoutRecipeDataAccessInterface;
+import data_access.*;
+import gateways.JavaHttpGateway;
+import interface_adapter.navigation.NavigationViewModel;
+import use_case.checkout_recipe.CheckoutRecipeDataAccessInterface;
 import data_access.CheckoutRecipeDataAccessObject;
 import interface_adapter.checkout_recipe.CheckoutRecipeController;
 import interface_adapter.checkout_recipe.CheckoutRecipePresenter;
 import interface_adapter.checkout_recipe.CheckoutRecipeState;
 import interface_adapter.checkout_recipe.CheckoutRecipeViewModel;
 import interface_adapter.navigation.NavigationController;
+import interface_adapter.similar_recipes.SimilarRecipesController;
+import interface_adapter.similar_recipes.SimilarRecipesPresenter;
+import interface_adapter.similar_recipes.SimilarRecipesState;
+import interface_adapter.similar_recipes.SimilarRecipesViewModel;
+import interface_adapter.tagging.AddTagController;
+import interface_adapter.tagging.AddTagPresenter;
+import interface_adapter.tagging.TaggingViewModel;
+import use_case.similar_recipes.*;
+import use_case.tagging.AddTagInputBoundary;
+import use_case.tagging.AddTagInteractor;
+import use_case.tagging.AddTagOutputBoundary;
+import use_case.tagging.AddTagDataAccessInterface;
+import data_access.AddTagDataAccessObject;
 import org.jetbrains.annotations.NotNull;
 import use_case.checkout_recipe.CheckoutRecipeInputBoundary;
 import use_case.checkout_recipe.CheckoutRecipeInteractor;
@@ -14,9 +30,12 @@ import use_case.checkout_recipe.CheckoutRecipeOutputBoundary;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class CheckoutRecipeView implements PropertyChangeListener {
@@ -25,9 +44,16 @@ public class CheckoutRecipeView implements PropertyChangeListener {
 
     private final NavigationController navigationController;
     private final CheckoutRecipeController checkoutRecipeController;
+    private final AddTagController addTagController;
+    private final TaggingViewModel taggingViewModel;
+    private final AddTagDataAccessInterface taggingDataAccess;
+    private final SimilarRecipesViewModel similarRecipesViewModel;
+    private final SimilarRecipesController similarRecipesController;
     private final CheckoutRecipeViewModel checkoutRecipeViewModel;
 
     private JFrame frame;
+
+    private int recipeId = -1;
 
     // Centre panel
     private JLabel titleLabel;
@@ -48,12 +74,30 @@ public class CheckoutRecipeView implements PropertyChangeListener {
         this.username = username;
         this.navigationController = navigationController;
 
-        checkoutRecipeViewModel = new CheckoutRecipeViewModel();
+        this.checkoutRecipeViewModel = new CheckoutRecipeViewModel();
 
+        // Initialize tagging components first
+
+        similarRecipesViewModel = new SimilarRecipesViewModel();
+
+        SimilarRecipeDataAccessInterface similarRecipesDAO = new DBSimilarRecipesDataAccessObject(new JavaHttpGateway());
+        SimilarRecipesOutputBoundary similarRecipesPresenter = new SimilarRecipesPresenter(new SimilarRecipesViewModel());
+        SimilarRecipesInputBoundary similarRecipesInteractor = new SimilarRecipesInteractor(similarRecipesDAO, similarRecipesPresenter);
+        this.similarRecipesController = new SimilarRecipesController(similarRecipesInteractor, new SimilarRecipesInputData(recipeId));
+
+        taggingViewModel = new TaggingViewModel();
+        taggingDataAccess = new AddTagDataAccessObject();
+        AddTagOutputBoundary taggingPresenter = new AddTagPresenter(taggingViewModel);
+        AddTagInputBoundary taggingInteractor = new AddTagInteractor(taggingDataAccess, taggingPresenter);
+        this.addTagController = new AddTagController(taggingInteractor);
+
+        // Initialize checkout recipe components with tagging data access
         CheckoutRecipeDataAccessInterface checkoutRecipeDAO = new CheckoutRecipeDataAccessObject();
         CheckoutRecipeOutputBoundary checkoutRecipePresenter = new CheckoutRecipePresenter(checkoutRecipeViewModel);
-        CheckoutRecipeInputBoundary checkoutRecipeInteractor = new CheckoutRecipeInteractor(checkoutRecipeDAO, checkoutRecipePresenter);
+        CheckoutRecipeInputBoundary checkoutRecipeInteractor = new CheckoutRecipeInteractor(checkoutRecipeDAO, checkoutRecipePresenter, taggingDataAccess);
         this.checkoutRecipeController = new CheckoutRecipeController(checkoutRecipeInteractor);
+
+        taggingViewModel.addPropertyChangeListener(evt -> refreshTagsFromStorage());
 
         // Listen for changes to the view model
         checkoutRecipeViewModel.addPropertyChangeListener(this);
@@ -69,6 +113,8 @@ public class CheckoutRecipeView implements PropertyChangeListener {
         JPanel mainPanel = new JPanel();
         mainPanel.setBackground(new Color(240, 235, 255));
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
         frame.add(mainPanel, BorderLayout.CENTER);
 
         // Right panel (Cuisine + Cooking time + Type etc.)
@@ -79,6 +125,7 @@ public class CheckoutRecipeView implements PropertyChangeListener {
         titleLabel = new JLabel();
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
         titleLabel.setForeground(new Color(55, 0, 120));
+        titleLabel.setBackground(new Color(55, 0, 120));
         titleLabel.setHorizontalAlignment(SwingConstants.LEFT);
         JPanel titlePanel = new JPanel();
         titlePanel.add(titleLabel);
@@ -88,35 +135,117 @@ public class CheckoutRecipeView implements PropertyChangeListener {
         JLabel ingredientsHeaderLabel = new JLabel("Ingredients:");
         ingredientsHeaderLabel.setFont(new Font("Arial", Font.BOLD, 16));
         ingredientsHeaderLabel.setForeground(new Color(70, 50, 120));
+        ingredientsHeaderLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         mainPanel.add(ingredientsHeaderLabel);
 
         ingredientsPanel = new JPanel();
         ingredientsPanel.setBackground(Color.WHITE);
         ingredientsPanel.setLayout(new BoxLayout(ingredientsPanel, BoxLayout.Y_AXIS));
+        ingredientsPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(240, 235, 255), 20),
+                BorderFactory.createEmptyBorder(6, 12, 6, 12)
+        ));
         mainPanel.add(ingredientsPanel);
 
         // Instructions section
         JLabel instructionsHeaderLabel = new JLabel("Instructions:");
         instructionsHeaderLabel.setFont(new Font("Arial", Font.BOLD, 16));
         instructionsHeaderLabel.setForeground(new Color(70, 50, 120));
+        instructionsHeaderLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         mainPanel.add(instructionsHeaderLabel);
 
         instructionsLabel = new JLabel();
         instructionsLabel.setBackground(Color.WHITE);
+        instructionsLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        ingredientsPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(240, 235, 255), 20),
+                BorderFactory.createEmptyBorder(6, 12, 6, 12)
+        ));
+
         mainPanel.add(instructionsLabel);
 
-        // Button for saving recipe
-        JButton saveButton = new JButton("Save Recipe");
-        saveButton.setBackground(new Color(65, 0, 140));
-        saveButton.setForeground(Color.WHITE);
-        saveButton.setFocusPainted(false);
-        saveButton.setBorder(BorderFactory.createCompoundBorder(
+        detailsPanel.add(Box.createVerticalStrut(8));
+        // Button for adding a tag
+        JButton addTagButton = new JButton("Add Tag");
+        addTagButton.setBackground(new Color(0, 128, 0));
+        addTagButton.setForeground(Color.WHITE);
+        addTagButton.setOpaque(true);
+        addTagButton.setBorderPainted(false);
+        addTagButton.setFocusPainted(false);
+        addTagButton.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(0, 90, 0),2),
+                BorderFactory.createEmptyBorder(6, 12, 6, 12)
+        ));
+        addTagButton.setFont(new Font("Arial", Font.BOLD, 15));
+        addTagButton.addActionListener(e -> {
+            if (recipeId <= 0) {
+                JOptionPane.showMessageDialog(
+                        frame,
+                        "Recipe is not available for tagging.",
+                        "Tagging Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+
+            JFrame tagFrame = new JFrame("Add Tag");
+            tagFrame.setMinimumSize(new Dimension(480, 360));
+            tagFrame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+            tagFrame.setLocationRelativeTo(frame);
+
+            AddTagView addTagView = new AddTagView(
+                    tagFrame,
+                    username,
+                    recipeId,
+                    addTagController,
+                    taggingViewModel
+            );
+            tagFrame.setContentPane(addTagView);
+            tagFrame.pack();
+            tagFrame.setVisible(true);
+        });
+        detailsPanel.add(addTagButton);
+
+
+        detailsPanel.add(Box.createVerticalStrut(8));
+        // Button for viewing similar recipes
+        JButton similarButton = new JButton("View Similar Recipes");
+        similarButton.setBackground(new Color(65, 0, 140));
+        similarButton.setForeground(Color.WHITE);
+        similarButton.setFocusPainted(false);
+        similarButton.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(45, 0, 100), 2),
                 BorderFactory.createEmptyBorder(6, 12, 6, 12)
         ));
-        saveButton.setFont(new Font("Arial", Font.BOLD, 15));
-        saveButton.addActionListener(e -> frame.dispose());
-        detailsPanel.add(saveButton);
+
+        similarButton.setFont(new Font("Arial", Font.BOLD, 15));
+        detailsPanel.add(similarButton);
+        similarButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Pass the specific recipe data to the checkout view
+                similarRecipesController.execute();
+                List<Integer> recipeIDs = similarRecipesViewModel.getState().getSimilarRecipes();
+
+                detailsPanel.remove(similarButton);
+
+                if (recipeIDs.isEmpty()) {
+                    JLabel noSimilarLabel = new JLabel();
+                    noSimilarLabel.setText("No similar recipes found.");
+                    detailsPanel.add(noSimilarLabel);
+                }
+                else {
+                    for (Integer id : recipeIDs) {
+                        JLabel idLabel = new JLabel();
+                        idLabel.setText(id.toString());
+                        detailsPanel.add(idLabel);
+                    }
+                }
+
+                detailsPanel.revalidate();
+                detailsPanel.repaint();
+            }
+        });
 
     }
 
@@ -137,14 +266,20 @@ public class CheckoutRecipeView implements PropertyChangeListener {
      * This method triggers the use case to display the recipe data.
      */
     private void loadRecipe(entity.Recipe recipe) {
-        checkoutRecipeController.execute(recipe);
+        if (recipe != null && recipe.getRecipeId() != null) {
+            this.recipeId = recipe.getRecipeId();
+        }
+        checkoutRecipeController.execute(username, recipe);
+
+        // Refresh tags from storage to ensure they persist
+        refreshTagsFromStorage();
     }
 
     @NotNull
     private JPanel buildDetailsPanel() {
         JPanel detailsPanel = new JPanel();
         detailsPanel.setBackground(Color.WHITE);
-        detailsPanel.setPreferredSize(new Dimension(200, 0));
+        detailsPanel.setPreferredSize(new Dimension(300, 0));
         detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
         detailsPanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 1, 0, 0, new Color(220, 220, 235)),
@@ -201,6 +336,30 @@ public class CheckoutRecipeView implements PropertyChangeListener {
         }
     }
 
+    private void refreshTagsFromStorage() {
+        if (recipeId <= 0) {
+            return; //no recipe loaded
+        }
+
+        java.util.List<String> tags = taggingDataAccess.getTagsForRecipe(username, recipeId);
+        if (tags == null || tags.isEmpty()) {
+            tagsLabel.setText("");
+        } else {
+            StringBuilder html = new StringBuilder("<html><b>Tags:</b><br>");
+            for (String tag : tags) {
+                if (tag != null && !tag.isBlank()) {
+                    html.append("• ").append(tag).append("<br>");
+                }
+            }
+            html.append("</html>");
+            tagsLabel.setText(html.toString());
+        }
+        if (frame != null) {
+            frame.revalidate();
+            frame.repaint();
+        }
+    }
+
     private void updateIngredientsPanel(CheckoutRecipeState state) {
         for (ArrayList<String> ingredientData : state.getRecipeIngredients()) {
             JPanel ingredientRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 2));
@@ -246,14 +405,14 @@ public class CheckoutRecipeView implements PropertyChangeListener {
 
         if (recipeInfo != null) {
             String title = recipeInfo.get("title");
-            titleLabel.setText(title != null ? title : "Recipe Details");
+            titleLabel.setText("<html><body>" + title + "</body></html>");
 
             String instructions = recipeInfo.get("instructions");
             if (instructions != null && !instructions.trim().isEmpty()) {
-                instructionsLabel.setText("<html><body style='width: 400px; font-family: Arial; font-size: 13px; line-height: 1.4;'>" +
+                instructionsLabel.setText("<html><body style=font-family: Arial; font-size: 13px; line-height: 1.4;'>" +
                         instructions + "</body></html>");
             } else {
-                instructionsLabel.setText("<html><body style='width: 400px; font-family: Arial; font-size: 13px; color: #888;'>" +
+                instructionsLabel.setText("<html><body style=font-family: Arial; font-size: 13px; color: #888;'>" +
                         "No instructions available</body></html>");
             }
 

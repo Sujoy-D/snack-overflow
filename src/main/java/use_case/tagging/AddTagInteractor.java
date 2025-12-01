@@ -5,15 +5,13 @@ package use_case.tagging;
  * Add tag to the recipe.
  */
 
-import data_access.TaggingDataAccessInterface;
-
 import java.util.List;
 
 public class AddTagInteractor implements AddTagInputBoundary {
-    private final TaggingDataAccessInterface taggingDataAccess;
+    private final AddTagDataAccessInterface taggingDataAccess;
     private final AddTagOutputBoundary presenter;
 
-    public AddTagInteractor(TaggingDataAccessInterface taggingDataAccess, AddTagOutputBoundary presenter) {
+    public AddTagInteractor(AddTagDataAccessInterface taggingDataAccess, AddTagOutputBoundary presenter) {
         this.taggingDataAccess = taggingDataAccess;
         this.presenter = presenter;
     }
@@ -31,6 +29,21 @@ public class AddTagInteractor implements AddTagInputBoundary {
 
         if (tagName.length() > 20) {
             presenter.prepareFailView("Invalid tag name, too long.");
+            return;
+        }
+
+        if (!tagName.matches("[A-Za-z0-9 ]+")) {
+            presenter.prepareFailView("Tag name cannot contain symbols.");
+            return;
+        }
+
+        List<String> existingTags = taggingDataAccess.getTagsForRecipe(username, recipeId);
+        String lowerCaseTagName = tagName.toLowerCase();
+        boolean exists = existingTags.stream()
+                .map(t -> t == null ? "" : t.trim().toLowerCase())
+                .anyMatch(t -> t.equals(lowerCaseTagName));
+        if (exists) {
+            presenter.prepareFailView("Tag already exists.");
             return;
         }
 

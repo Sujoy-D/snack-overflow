@@ -8,16 +8,16 @@ import use_case.login.LoginDataAccessInterface;
  */
 public class LoginDataAccessObject implements LoginDataAccessInterface {
     
-    private final UserRepository userRepository;
+    private final UserDataAccessObject userDataAccessObject;
     
-    public LoginDataAccessObject(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public LoginDataAccessObject(UserDataAccessObject userDataAccessObject) {
+        this.userDataAccessObject = userDataAccessObject;
     }
     
     @Override
     public boolean validateLogin(String username, String password) {
         try {
-            return userRepository.validateLogin(username, password);
+            return userDataAccessObject.validateLogin(username, password);
         } catch (Exception e) {
             // Log the exception (in a real application)
             return false;
@@ -27,7 +27,7 @@ public class LoginDataAccessObject implements LoginDataAccessInterface {
     @Override
     public void updateLastLogin(String username) {
         try {
-            userRepository.updateLastLogin(username);
+            userDataAccessObject.updateLastLogin(username);
         } catch (Exception e) {
             // Log the exception (in a real application)
             // This is non-critical, so we don't throw the exception

@@ -58,7 +58,7 @@ public class AddTagView extends JPanel implements PropertyChangeListener {
         //Messages after tag entered
         message = new JLabel(" ");
         message.setFont(new Font(FONT_ARIAL, Font.BOLD, 14));
-        message.setForeground(Color.RED);
+        message.setForeground(Color.GREEN);
         c.gridx = 0;
         c.gridy = 2;
         c.gridwidth = 2;
@@ -108,6 +108,11 @@ public class AddTagView extends JPanel implements PropertyChangeListener {
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         TaggingState taggingState = taggingViewModel.getState();
+        if (taggingState.isSuccess()) {
+            message.setForeground(Color.GREEN);
+        } else {
+            message.setForeground(Color.RED);
+        }
         message.setText(taggingState.getMessage());
         if (!taggingState.isSuccess()) {
             tagNameTextField.setText("");
