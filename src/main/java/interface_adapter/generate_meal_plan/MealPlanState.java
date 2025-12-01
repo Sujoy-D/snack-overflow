@@ -1,6 +1,8 @@
 package interface_adapter.generate_meal_plan;
 
 
+import entity.Recipe;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,15 +16,15 @@ import java.util.Map;
  */
 public class MealPlanState {
 
-    private Map<String, List<String>> mealPlan = new HashMap<>();
+    private Map<String, List<Recipe>> mealPlan = new HashMap<>();
 
     private String errorMessage = null;
 
-    public Map<String, List<String>> getMealPlan() {
+    public Map<String, List<Recipe>> getMealPlan() {
         return mealPlan;
     }
 
-    public void setMealPlan(Map<String, List<String>> mealPlan) {
+    public void setMealPlan(Map<String, List<Recipe>> mealPlan) {
         this.mealPlan = mealPlan;
     }
 

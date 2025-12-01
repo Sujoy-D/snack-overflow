@@ -22,7 +22,6 @@ public class MealPlanPresenter implements MealPlanOutputBoundary {
         newState.setErrorMessage(null);
         newState.setMealPlan(outputData.getWeeklyPlan());
 
-        // Update ViewModel
         viewModel.setState(newState);
         viewModel.firePropertyChanged();
     }
@@ -32,8 +31,8 @@ public class MealPlanPresenter implements MealPlanOutputBoundary {
 
         MealPlanState newState = new MealPlanState();
         newState.setErrorMessage(errorMessage);
+        newState.setMealPlan(null);
 
-        // Update ViewModel
         viewModel.setState(newState);
         viewModel.firePropertyChanged();
     }

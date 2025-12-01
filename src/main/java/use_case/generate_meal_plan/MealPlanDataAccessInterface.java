@@ -1,5 +1,6 @@
 package use_case.generate_meal_plan;
 
+import entity.Recipe;
 import java.util.List;
 import java.util.Map;
 
@@ -13,7 +14,7 @@ public interface MealPlanDataAccessInterface {
      *
      * @return A map: day → list of recipe titles
      */
-    Map<String, List<String>> generateWeeklyMealPlan(
+    Map<String, List<Recipe>> generateWeeklyMealPlan(
             String diet,
             String calorieLevel,
             int mealsPerDay
