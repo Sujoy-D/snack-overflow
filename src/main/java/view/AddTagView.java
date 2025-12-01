@@ -108,6 +108,11 @@ public class AddTagView extends JPanel implements PropertyChangeListener {
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         TaggingState taggingState = taggingViewModel.getState();
+        if (taggingState.isSuccess()) {
+            message.setForeground(Color.GREEN);
+        } else {
+            message.setForeground(Color.RED);
+        }
         message.setText(taggingState.getMessage());
         if (!taggingState.isSuccess()) {
             tagNameTextField.setText("");
