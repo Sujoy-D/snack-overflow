@@ -223,14 +223,8 @@ public class MealPlanningPageView extends JPanel implements PropertyChangeListen
                     @Override
                     public void mouseClicked(java.awt.event.MouseEvent evt) {
 
-                        // TODO: replace this JOptionPane with RecipeDetailController.execute(recipe) to show full recipe view.
+                        navigationController.executeWithRecipe("checkoutRecipe", username, recipe);
 
-                        JOptionPane.showMessageDialog(
-                                null,
-                                "You clicked on: " + mealTitle + " (id = " + recipe.getRecipeId() + ")",
-                                "Meal Selected",
-                                JOptionPane.INFORMATION_MESSAGE
-                        );
                     }
                 });
 
