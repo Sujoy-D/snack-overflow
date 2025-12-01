@@ -38,18 +38,45 @@ class MealPlanInteractorTest {
         }
 
         @Override
-        public Map<String, List<Recipe>> generateWeeklyMealPlan(String diet, String calorieLevel, int mealsPerDay) {
+        public Map<String, List<Recipe>> generateWeeklyMealPlan(
+                String diet, String calorieLevel, int mealsPerDay
+        ) {
             return plan;
         }
+
+        @Override
+        public Map<String, List<Recipe>> loadMealPlan(String id) {
+            return plan; // or null; depending on real behavior
+        }
+
+        @Override
+        public void saveMealPlan(String username, Map<String, List<Recipe>> mealPlan) {
+            // Mock implementation - do nothing
+        }
     }
+
 
 
     static class MockAPIFailure implements MealPlanDataAccessInterface {
+
         @Override
-        public Map<String, List<Recipe>> generateWeeklyMealPlan(String diet, String calorieLevel, int mealsPerDay) {
+        public Map<String, List<Recipe>> generateWeeklyMealPlan(
+                String diet, String calorieLevel, int mealsPerDay
+        ) {
+            throw new RuntimeException("API fail");
+        }
+
+        @Override
+        public Map<String, List<Recipe>> loadMealPlan(String id) {
+            throw new RuntimeException("API fail");
+        }
+
+        @Override
+        public void saveMealPlan(String username, Map<String, List<Recipe>> mealPlan) {
             throw new RuntimeException("API fail");
         }
     }
+
 
 
     @Test
