@@ -12,11 +12,11 @@ public class CheckoutRecipeInteractor implements CheckoutRecipeInputBoundary {
 
     private final CheckoutRecipeDataAccessInterface checkoutRecipeDAO;
     private final CheckoutRecipeOutputBoundary checkoutRecipePresenter;
-    private final TaggingDataAccessInterface taggingDataAccess;
+    private final AddTagDataAccessInterface taggingDataAccess;
 
     public CheckoutRecipeInteractor(CheckoutRecipeDataAccessInterface checkoutRecipeDAO,
                                     CheckoutRecipeOutputBoundary checkoutRecipePresenter,
-                                    TaggingDataAccessInterface taggingDataAccess) {
+                                    AddTagDataAccessInterface taggingDataAccess) {
         this.checkoutRecipeDAO = checkoutRecipeDAO;
         this.checkoutRecipePresenter = checkoutRecipePresenter;
         this.taggingDataAccess = taggingDataAccess;
@@ -35,13 +35,10 @@ public class CheckoutRecipeInteractor implements CheckoutRecipeInputBoundary {
 
             Integer recipeId = checkoutRecipeInputData.getRecipeId();
             String username = checkoutRecipeInputData.getUsername();
-            List<String> recipeTags = new ArrayList<>();
+            ArrayList<String> recipeTags = new ArrayList<>();
 
-            if (username != null && recipeId != null && recipeId > 0) {
-                List<String> storedTags = taggingDataAccess.getTagsForRecipe(username, recipeId);
-                if (storedTags != null) {
-                    recipeTags.addAll(storedTags);
-                }
+            if (username != null && recipeId != null ) {
+                recipeTags.addAll(taggingDataAccess.getTagsForRecipe(username, recipeId));
             }
             CheckoutRecipeOutputData outputData = new CheckoutRecipeOutputData(recipeInfo, recipeIngredients, new ArrayList<>(recipeTags));
 
