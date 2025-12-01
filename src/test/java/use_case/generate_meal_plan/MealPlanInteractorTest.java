@@ -9,10 +9,16 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Test class for MealPlanInteractor.
+ * Tests the business logic for meal plan generation functionality,
+ * including success scenarios and failure handling.
+ */
 class MealPlanInteractorTest {
 
     /**
-     * Mock interactor
+     * Mock implementation of MealPlanOutputBoundary for testing.
+     * Captures output data and error messages for verification.
      */
     static class MockPresenter implements MealPlanOutputBoundary {
         MealPlanOutputData successData = null;
@@ -30,6 +36,10 @@ class MealPlanInteractorTest {
     }
 
 
+    /**
+     * Mock implementation of MealPlanDataAccessInterface that simulates successful API responses.
+     * Returns predefined meal plan data for testing success scenarios.
+     */
     static class MockAPISuccess implements MealPlanDataAccessInterface {
         private final Map<String, List<Recipe>> plan;
 
@@ -57,6 +67,10 @@ class MealPlanInteractorTest {
 
 
 
+    /**
+     * Mock implementation of MealPlanDataAccessInterface that simulates API failures.
+     * Throws RuntimeException for all methods to test error handling.
+     */
     static class MockAPIFailure implements MealPlanDataAccessInterface {
 
         @Override
@@ -79,6 +93,11 @@ class MealPlanInteractorTest {
 
 
 
+    /**
+     * Test successful meal plan generation.
+     * Verifies that when the API returns valid data, the interactor
+     * processes it correctly and calls the presenter with success data.
+     */
     @Test
     void testInteractorSuccessFlow() {
 
@@ -116,6 +135,11 @@ class MealPlanInteractorTest {
     }
 
 
+    /**
+     * Test meal plan generation failure handling.
+     * Verifies that when the API throws an exception, the interactor
+     * handles it gracefully and calls the presenter with error information.
+     */
     @Test
     void testInteractorFailureFlow() {
 

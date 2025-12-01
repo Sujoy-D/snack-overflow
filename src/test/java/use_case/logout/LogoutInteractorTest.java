@@ -3,6 +3,11 @@ package use_case.logout;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Test class for LogoutInteractor.
+ * Tests the business logic for user logout functionality,
+ * including successful logout and error handling scenarios.
+ */
 class LogoutInteractorTest {
     
     @Test

@@ -23,4 +23,24 @@ public class Ingredient {
     public String getUnit() {
         return unit;
     }
+
+    @Override
+    public String toString() {
+        return name + " " + quantity + " " + unit;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Ingredient that = (Ingredient) obj;
+        return name.equals(that.name) && 
+               quantity.equals(that.quantity) && 
+               unit.equals(that.unit);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(name, quantity, unit);
+    }
 }
