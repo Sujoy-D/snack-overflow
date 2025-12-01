@@ -58,7 +58,7 @@ public class AddTagView extends JPanel implements PropertyChangeListener {
         //Messages after tag entered
         message = new JLabel(" ");
         message.setFont(new Font(FONT_ARIAL, Font.BOLD, 14));
-        message.setForeground(Color.RED);
+        message.setForeground(Color.GREEN);
         c.gridx = 0;
         c.gridy = 2;
         c.gridwidth = 2;
