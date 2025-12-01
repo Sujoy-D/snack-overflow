@@ -131,13 +131,13 @@ public class MealPlanningPageView extends JPanel implements PropertyChangeListen
         loadPlanButton.addActionListener(e -> {
             MealPlanDataAccessObject mealPlanDataAccessObject = new MealPlanDataAccessObject();
             Map<String, List<Recipe>> loadedPlan = mealPlanDataAccessObject.loadMealPlan(username);
-            
+
             if (loadedPlan != null && !loadedPlan.isEmpty()) {
                 savedMealPlan = loadedPlan;
                 MealPlanState state = viewModel.getState();
                 state.setMealPlan(loadedPlan);
                 viewModel.firePropertyChanged();
-                
+
                 JOptionPane.showMessageDialog(
                         this,
                         "Your saved meal plan has been loaded!",
@@ -256,8 +256,9 @@ public class MealPlanningPageView extends JPanel implements PropertyChangeListen
                 mealLabel.addMouseListener(new java.awt.event.MouseAdapter() {
                     @Override
                     public void mouseClicked(java.awt.event.MouseEvent evt) {
-                        // Open the CheckoutRecipeView to show full recipe details
-                        CheckoutRecipeView.show(username, navigationController, recipe);
+
+                        navigationController.executeWithRecipe("checkoutRecipe", username, recipe);
+
                     }
                 });
 
