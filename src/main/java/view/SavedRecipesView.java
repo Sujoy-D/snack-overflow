@@ -225,7 +225,7 @@ public class SavedRecipesView {
         }
     }
 
-    private static JPanel createRecipeSection(Recipe recipe) {
+    private JPanel createRecipeSection(Recipe recipe) {
         JPanel recipeSection = new JPanel(new BorderLayout());
         recipeSection.setOpaque(true);
         recipeSection.setBackground(Color.WHITE);
@@ -251,11 +251,7 @@ public class SavedRecipesView {
         recipeSection.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                int recipeId = recipe.getRecipeId();
-                //TODO: Pull up recipe page when implemented. And remove the temporary replacement below
-                JOptionPane.showMessageDialog(recipeSection, "Open Recipe ID: " + recipeId, "Recipe Selected",
-                        JOptionPane.INFORMATION_MESSAGE);
-
+                CheckoutRecipeView.show(username, navigationController, recipe);
             }
         });
         return recipeSection;
