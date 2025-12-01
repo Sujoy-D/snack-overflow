@@ -1,7 +1,7 @@
 package use_case.add_recipe;
 
 import entity.Recipe;
-import data_access.AddRecipeDataAccessInterface;
+import use_case.add_recipe.AddRecipeDataAccessInterface;
 
 public class AddRecipeInteractor implements AddRecipeInputBoundary {
 

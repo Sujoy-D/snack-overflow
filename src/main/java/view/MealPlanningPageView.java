@@ -6,7 +6,7 @@ import interface_adapter.generate_meal_plan.MealPlanController;
 import interface_adapter.generate_meal_plan.MealPlanViewModel;
 import interface_adapter.generate_meal_plan.MealPlanState;
 import interface_adapter.navigation.NavigationController;
-import data_access.MealPlanStorage;
+import data_access.MealPlanDataAccessObject;
 
 import javax.swing.*;
 import java.awt.*;
@@ -102,7 +102,8 @@ public class MealPlanningPageView extends JPanel implements PropertyChangeListen
             MealPlanState state = viewModel.getState();
             if (state.getMealPlan() != null && !state.getMealPlan().isEmpty()) {
                 savedMealPlan = new LinkedHashMap<>(state.getMealPlan());
-                MealPlanStorage.saveMealPlan(username, savedMealPlan);
+                MealPlanDataAccessObject mealPlanDataAccessObject = new MealPlanDataAccessObject();
+                mealPlanDataAccessObject.saveMealPlan(username, savedMealPlan);
 
                 state.setMealPlan(savedMealPlan);
                 viewModel.firePropertyChanged();
@@ -156,7 +157,8 @@ public class MealPlanningPageView extends JPanel implements PropertyChangeListen
 
         mainPanel.add(scrollPane, BorderLayout.CENTER);
 
-        savedMealPlan = MealPlanStorage.loadMealPlan(username);
+        MealPlanDataAccessObject mealPlanDataAccessObject = new MealPlanDataAccessObject();
+        savedMealPlan = mealPlanDataAccessObject.loadMealPlan(username);
         if (savedMealPlan != null) {
             MealPlanState state = viewModel.getState();
             state.setMealPlan(savedMealPlan);

@@ -1,6 +1,6 @@
 package use_case.checkout_recipe;
 
-import data_access.CheckoutRecipeDataAccessInterface;
+import use_case.checkout_recipe.CheckoutRecipeDataAccessInterface;
 
 import java.util.ArrayList;
 import java.util.Map;

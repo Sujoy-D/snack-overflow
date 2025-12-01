@@ -1,6 +1,6 @@
 package view;
 
-import data_access.UserFileDataAccess;
+import data_access.RecipeDataAccessObject;
 import entity.Ingredient;
 import entity.Tag;
 
@@ -15,7 +15,6 @@ import interface_adapter.add_recipe.AddRecipePresenter;
 import interface_adapter.add_recipe.AddRecipeViewModel;
 import interface_adapter.navigation.NavigationController;
 import use_case.add_recipe.AddRecipeInteractor;
-import view.ViewManager;
 
 public class AddRecipeForm {
 
@@ -176,7 +175,7 @@ public class AddRecipeForm {
                 // INTERACTOR SETUP
                 AddRecipeViewModel vm = new AddRecipeViewModel();
                 AddRecipePresenter presenter = new AddRecipePresenter(vm);
-                UserFileDataAccess data = new UserFileDataAccess();  // TODO replace w Mongo
+                RecipeDataAccessObject data = new RecipeDataAccessObject();
                 AddRecipeInteractor interactor = new AddRecipeInteractor(data, presenter, username);
 
                 AddRecipeController controller = new AddRecipeController(interactor);

@@ -6,7 +6,7 @@ import interface_adapter.logout.LogoutViewModel;
 import interface_adapter.logout.LogoutPresenter;
 import use_case.logout.LogoutInteractor;
 import data_access.LogoutDataAccessObject;
-import data_access.UserRepository;
+import data_access.UserDataAccessObject;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,8 +30,8 @@ public class SidebarView extends JPanel {
     
     private void initializeLogoutComponents() {
         // Create logout dependencies using clean architecture
-        UserRepository userRepository = new UserRepository();
-        LogoutDataAccessObject logoutDataAccess = new LogoutDataAccessObject(userRepository);
+        UserDataAccessObject userDataAccessObject = new UserDataAccessObject();
+        LogoutDataAccessObject logoutDataAccess = new LogoutDataAccessObject(userDataAccessObject);
         LogoutViewModel logoutViewModel = new LogoutViewModel();
         LogoutPresenter logoutPresenter = new LogoutPresenter(logoutViewModel, navigationController);
         LogoutInteractor logoutInteractor = new LogoutInteractor(logoutDataAccess, logoutPresenter);
@@ -128,8 +128,8 @@ public class SidebarView extends JPanel {
     
     private JButton createSidebarButton(String text) {
         JButton button = new JButton(text);
-        button.setFont(new Font("Arial", Font.PLAIN, 14));
-        button.setBackground(new Color(147, 112, 219));
+        button.setFont(new Font("Arial", Font.BOLD, 14));
+        button.setBackground(new Color(65, 0, 140)); // Dark purple background
         button.setForeground(Color.WHITE);
         button.setFocusPainted(false);
         button.setBorderPainted(false);
