@@ -1,13 +1,10 @@
 package use_case.similar_recipes;
 
-import gateways.JavaHttpGateway;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -20,12 +17,12 @@ class SimilarRecipesInteractorTest {
     @Test
     void executeSuccessfulSimilarRecipes() {
         MockSimilarRecipesDataAccessObject dataAccessObject =
-                new MockSimilarRecipesDataAccessObject(new JavaHttpGateway());
+                new MockSimilarRecipesDataAccessObject(new MockJavaHttpGateway());
         MockSimilarRecipesPresenter presenter = new MockSimilarRecipesPresenter();
         SimilarRecipesInteractor interactor = new SimilarRecipesInteractor(dataAccessObject, presenter);
 
         // Valid recipe ID from Spoonacular API
-        int recipeId = 716429;
+        int recipeId = 0;
         SimilarRecipesInputData inputData = new SimilarRecipesInputData(recipeId);
 
         // Execute the interactor
@@ -42,7 +39,7 @@ class SimilarRecipesInteractorTest {
         List<Integer> similarRecipes = presenter.getOutputData().getSimilarRecipes();
 
         List<Integer> expectedSimilarRecipes =
-                Arrays.asList(157473, 661043, 665141, 637923, 644212, 652716, 660101, 654835);
+                List.of(1);
 
         assertTrue(similarRecipes.containsAll(expectedSimilarRecipes));
     }
@@ -50,7 +47,7 @@ class SimilarRecipesInteractorTest {
     @Test
     void executeHandlesInvalidRecipeId() {
         MockSimilarRecipesDataAccessObject dataAccessObject =
-                new MockSimilarRecipesDataAccessObject(new JavaHttpGateway());
+                new MockSimilarRecipesDataAccessObject(new MockJavaHttpGateway());
         MockSimilarRecipesPresenter presenter = new MockSimilarRecipesPresenter();
         SimilarRecipesInteractor interactor = new SimilarRecipesInteractor(dataAccessObject, presenter);
 
@@ -74,33 +71,46 @@ class SimilarRecipesInteractorTest {
      * Mock implementation of SimilarRecipesDataAccessInterface for testing.
      */
     private static class MockSimilarRecipesDataAccessObject implements SimilarRecipesDataAccessInterface {
-        private final JavaHttpGateway httpGateway;
+        private final MockJavaHttpGateway httpGateway;
 
-        public MockSimilarRecipesDataAccessObject(JavaHttpGateway httpGateway) {
+        public MockSimilarRecipesDataAccessObject(MockJavaHttpGateway httpGateway) {
             this.httpGateway = httpGateway;
         }
 
-        public ArrayList<Integer> getSimilarRecipeID(int recipeId) throws Exception {
-            String baseLink = String.format("https://api.spoonacular.com/recipes/%s/similar?apiKey", recipeId);
-            String response = httpGateway.get(baseLink);
+        public ArrayList<Integer> getSimilarRecipeID(int recipeId) {
+            String response = httpGateway.getSimilarRecipesJSON(recipeId);
             final JSONArray responseBody = new JSONArray(response);
 
-            final ArrayList<Integer> similarRecipeID = new ArrayList<>();
+            ArrayList<Integer> similarRecipeID = null;
 
             if (!responseBody.isEmpty()) {
-
+                similarRecipeID = new ArrayList<>();
                 for (int i = 0; i < responseBody.length(); i++) {
                     JSONObject recipe = responseBody.getJSONObject(i);
                     similarRecipeID.add(recipe.getInt("id"));
                 }
-                return similarRecipeID;
             }
-            else {
-                return null;
-            }
+            return similarRecipeID;
         }
     }
 
+    /**
+     * Mock implementation of JavaHttpGateway for faster, non-API-dependent testing.
+     */
+    private static class MockJavaHttpGateway {
+        public String getSimilarRecipesJSON(int recipeId) {
+
+            StringBuilder similarRecipes = new StringBuilder("[");
+
+            // General logic: a recipe can have any non-negative ID.
+            if (recipeId >= 0) {
+                similarRecipes.append("{\"id\":1,\"image\":recipe.jpg,\"imageType\":\"jpg\","
+                        + "\"title\":\"Sliced Fruit\",\"readyInMinutes\":5,\"servings\":1}");
+            }
+            similarRecipes.append("]");
+            return similarRecipes.toString();
+        }
+    }
 
     /**
      * Mock implementation of SimilarRecipesOutputBoundary for testing.
