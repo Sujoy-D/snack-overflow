@@ -71,6 +71,89 @@ class SearchRecipesInteractorTest {
         assertEquals("Maximum cooking time must be a positive number.", presenter.errorMessage);
         assertNull(gateway.lastIngredientsCsv);
     }
+
+    @Test
+    void failsWhenIngredientsAndFiltersAreNull() {
+        RecordingGateway gateway = new RecordingGateway();
+        RecordingPresenter presenter = new RecordingPresenter();
+        SearchRecipesInteractor interactor = new SearchRecipesInteractor(gateway, presenter);
+
+        interactor.execute(new SearchRecipesInputData(null, 1, null));
+
+        assertTrue(presenter.failureCalled);
+        assertEquals("Add ingredients or filters to search.", presenter.errorMessage);
+        assertFalse(presenter.successCalled);
+        assertNull(gateway.lastIngredientsCsv);
+    }
+
+    @Test
+    void succeedsWithNullFilters() {
+        RecordingGateway gateway = new RecordingGateway();
+        RecordingPresenter presenter = new RecordingPresenter();
+        SearchRecipesInteractor interactor = new SearchRecipesInteractor(gateway, presenter);
+
+        interactor.execute(new SearchRecipesInputData("Tomato", 2, null));
+
+        assertEquals("tomato", gateway.lastIngredientsCsv);
+        assertTrue(presenter.successCalled);
+        assertFalse(presenter.failureCalled);
+    }
+
+    @Test
+    void skipsEmptyIngredientSegments() {
+        RecordingGateway gateway = new RecordingGateway();
+        RecordingPresenter presenter = new RecordingPresenter();
+        SearchRecipesInteractor interactor = new SearchRecipesInteractor(gateway, presenter);
+
+        SearchFilters filters = new SearchFilters(null, null, List.of("peanut"), null, null);
+        interactor.execute(new SearchRecipesInputData("Apple,, FLOUR, , ", 4, filters));
+
+        assertEquals("apple,flour", gateway.lastIngredientsCsv);
+        assertTrue(presenter.successCalled);
+    }
+
+    @Test
+    void usesFiltersWhenIngredientsAreBlank() {
+        RecordingGateway gateway = new RecordingGateway();
+        RecordingPresenter presenter = new RecordingPresenter();
+        SearchRecipesInteractor interactor = new SearchRecipesInteractor(gateway, presenter);
+
+        SearchFilters filters = new SearchFilters(null, null, List.of("peanut"), null, null);
+        interactor.execute(new SearchRecipesInputData("   ,  ", 1, filters));
+
+        assertEquals("", gateway.lastIngredientsCsv);
+        assertTrue(presenter.successCalled);
+        assertFalse(presenter.failureCalled);
+    }
+
+    @Test
+    void returnsEmptyListWhenGatewayReturnsNull() {
+        RecordingPresenter presenter = new RecordingPresenter();
+        NullReturningGateway gateway = new NullReturningGateway();
+        SearchRecipesInteractor interactor = new SearchRecipesInteractor(gateway, presenter);
+
+        interactor.execute(new SearchRecipesInputData("apple", 2, null));
+
+        assertTrue(gateway.called);
+        assertTrue(presenter.successCalled);
+        assertNotNull(presenter.lastOutputData);
+        assertTrue(presenter.lastOutputData.getRecipes().isEmpty());
+    }
+
+    @Test
+    void reportsGatewayExceptionsAsFailures() {
+        RecordingPresenter presenter = new RecordingPresenter();
+        SearchRecipesGateway gateway = (ingredientsCsv, filters, numberOfResults) -> {
+            throw new RuntimeException("boom");
+        };
+        SearchRecipesInteractor interactor = new SearchRecipesInteractor(gateway, presenter);
+
+        interactor.execute(new SearchRecipesInputData(null, 2, new SearchFilters(null, null, List.of("nut"), null, null)));
+
+        assertTrue(presenter.failureCalled);
+        assertFalse(presenter.successCalled);
+        assertEquals("Unable to fetch recipes: boom", presenter.errorMessage);
+    }
     
     private static class RecordingGateway implements SearchRecipesGateway {
         String lastIngredientsCsv;
@@ -93,15 +176,27 @@ class SearchRecipesInteractorTest {
             return new ArrayList<>(List.of(recipe));
         }
     }
+
+    private static class NullReturningGateway implements SearchRecipesGateway {
+        boolean called;
+
+        @Override
+        public List<Recipe> searchRecipes(String ingredientsCsv, SearchFilters filters, int numberOfResults) {
+            called = true;
+            return null;
+        }
+    }
     
     private static class RecordingPresenter implements SearchRecipesOutputBoundary {
         boolean successCalled;
         boolean failureCalled;
         String errorMessage;
+        SearchRecipesOutputData lastOutputData;
         
         @Override
         public void presentSuccess(SearchRecipesOutputData outputData) {
             successCalled = true;
+            this.lastOutputData = outputData;
         }
         
         @Override
