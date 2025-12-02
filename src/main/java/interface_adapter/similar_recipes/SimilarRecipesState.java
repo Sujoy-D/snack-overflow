@@ -3,11 +3,14 @@ package interface_adapter.similar_recipes;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The state for the Similar Recipes Use Case.
+ */
 public class SimilarRecipesState {
 
     private List<Integer> similarRecipes = new ArrayList<>();
 
-    private String errorMessage = null;
+    private String errorMessage;
 
     public List<Integer> getSimilarRecipes() {
         return similarRecipes;

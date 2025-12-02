@@ -1,12 +1,16 @@
 package data_access;
 
-import gateways.JavaHttpGateway;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import use_case.similar_recipes.SimilarRecipesDataAccessInterface;
-
 import java.util.ArrayList;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import gateways.JavaHttpGateway;
+import use_case.similar_recipes.SimilarRecipesDataAccessInterface;
+
+/**
+ * The Data Access Object for the Similar Recipes Use Case.
+ */
 public class SimilarRecipesDataAccessObject implements SimilarRecipesDataAccessInterface {
     private final JavaHttpGateway httpGateway;
 
@@ -16,21 +20,19 @@ public class SimilarRecipesDataAccessObject implements SimilarRecipesDataAccessI
 
     @Override
     public ArrayList<Integer> getSimilarRecipeID(int recipeID) throws Exception {
-        String baseURL = String.format("https://api.spoonacular.com/recipes/%s/similar?apiKey", recipeID);
-        String response = httpGateway.get(baseURL);
+        final String baseLink = String.format("https://api.spoonacular.com/recipes/%s/similar?apiKey", recipeID);
+        final String response = httpGateway.get(baseLink);
         final JSONArray responseBody = new JSONArray(response);
 
-        final ArrayList<Integer> similarRecipeID = new ArrayList<>();
+        ArrayList<Integer> similarRecipeID = null;
 
         if (!responseBody.isEmpty()) {
+            similarRecipeID = new ArrayList<>();
             for (int i = 0; i < responseBody.length(); i++) {
-                JSONObject recipe = responseBody.getJSONObject(i);
+                final JSONObject recipe = responseBody.getJSONObject(i);
                 similarRecipeID.add(recipe.getInt("id"));
             }
-            return similarRecipeID;
         }
-        else {
-            return null;
-        }
+        return similarRecipeID;
     }
 }

@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Test suite for the Similar Recipes Use Case Interactor.
  */
-public class SimilarRecipesInteractorTest {
+class SimilarRecipesInteractorTest {
 
     @Test
     void executeSuccessfulSimilarRecipes() {
@@ -32,14 +32,14 @@ public class SimilarRecipesInteractorTest {
         interactor.execute(inputData);
 
         assertTrue(presenter.isSuccessCalled(), "Success should be called with a valid recipe ID.");
-        assertFalse(presenter.isFailureCalled(), "Failure should not be called with a valide recipe ID.");
+        assertFalse(presenter.isFailureCalled(), "Failure should not be called with a valid recipe ID.");
 
         String errorMessage = presenter.getErrorMessage();
 
         // Error message should not be changed as no error occurred
         assertNull(errorMessage);
 
-        ArrayList<Integer> similarRecipes = presenter.getOutputData().getSimilarRecipes();
+        List<Integer> similarRecipes = presenter.getOutputData().getSimilarRecipes();
 
         List<Integer> expectedSimilarRecipes =
                 Arrays.asList(157473, 661043, 665141, 637923, 644212, 652716, 660101, 654835);
