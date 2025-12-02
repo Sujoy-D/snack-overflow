@@ -1,14 +1,14 @@
 package use_case.add_recipe;
 
-import entity.Recipe;
 import java.util.List;
+
+import entity.Recipe;
 
 /**
  * Data access interface for adding recipes.
  * Defines the contract for storing and retrieving recipes.
  */
 public interface AddRecipeDataAccessInterface {
-    
     /**
      * Save a recipe for a user.
      *
