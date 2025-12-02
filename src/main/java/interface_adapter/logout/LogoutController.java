@@ -20,7 +20,7 @@ public class LogoutController {
      * @param username the username of the user to log out
      */
     public void execute(String username) {
-        LogoutInputData inputData = new LogoutInputData(username);
+        final LogoutInputData inputData = new LogoutInputData(username);
         interactor.execute(inputData);
     }
 }

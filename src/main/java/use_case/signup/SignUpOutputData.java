@@ -1,7 +1,7 @@
 package use_case.signup;
 
 /**
- * Output Data for the Sign Up Use Case.
+ * Output Data for the Sign-Up Use Case.
  */
 public class SignUpOutputData {
     

@@ -17,37 +17,43 @@ public class LoginInteractor implements LoginInputBoundary {
     
     @Override
     public void execute(LoginInputData inputData) {
-        String username = inputData.getUsername();
-        String password = inputData.getPassword();
-        
+        final String username = inputData.getUsername();
+        final String password = inputData.getPassword();
+
+        String errorMessage = null;
+
         // Validate input
         if (username == null || username.trim().isEmpty()) {
-            presenter.prepareFailView("Username cannot be empty");
-            return;
+            errorMessage = "Username cannot be empty";
         }
-        
-        if (password == null || password.trim().isEmpty()) {
-            presenter.prepareFailView("Password cannot be empty");
-            return;
+        else if (password == null || password.trim().isEmpty()) {
+            errorMessage = "Password cannot be empty";
         }
-        
-        try {
-            // Attempt to validate credentials
-            boolean isValid = loginDataAccess.validateLogin(username, password);
-            
-            if (isValid) {
-                // Update last login timestamp
-                loginDataAccess.updateLastLogin(username);
-                
-                // Prepare success response
-                LoginOutputData outputData = new LoginOutputData(
-                    username, true, "Login successful");
-                presenter.prepareSuccessView(outputData);
-            } else {
-                presenter.prepareFailView("Invalid username or password");
+
+        if (errorMessage != null) {
+            presenter.prepareFailView(errorMessage);
+        }
+        else {
+            try {
+                // Attempt to validate credentials
+                final boolean isValid = loginDataAccess.validateLogin(username, password);
+
+                if (isValid) {
+                    // Update last login timestamp
+                    loginDataAccess.updateLastLogin(username);
+
+                    // Prepare success response
+                    final LoginOutputData outputData = new LoginOutputData(
+                            username, true, "Login successful");
+                    presenter.prepareSuccessView(outputData);
+                }
+                else {
+                    presenter.prepareFailView("Invalid username or password");
+                }
             }
-        } catch (Exception e) {
-            presenter.prepareFailView("Login failed due to system error");
+            catch (IllegalArgumentException error) {
+                presenter.prepareFailView("Login failed due to system error");
+            }
         }
     }
 }

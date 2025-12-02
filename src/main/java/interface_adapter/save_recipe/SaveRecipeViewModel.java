@@ -6,21 +6,25 @@ import interface_adapter.ViewModel;
  * View Model for the Save Recipe Use Case.
  */
 public class SaveRecipeViewModel extends ViewModel {
-	private SaveRecipeState state = new SaveRecipeState();
+    private SaveRecipeState state = new SaveRecipeState();
 
-	public SaveRecipeViewModel() {
+    public SaveRecipeViewModel() {
 		super("saveRecipe");
 	}
 
-	public SaveRecipeState getState() {
+    public SaveRecipeState getState() {
 		return state;
 	}
 
-	public void setState(SaveRecipeState state) {
+    public void setState(SaveRecipeState state) {
 		this.state = state;
 	}
 
-	public void firePropertyChanged() {
-		super.firePropertyChanged("state");
-	}
+    /**
+     * Notify observers that the state has changed.
+     */
+    public void firePropertyChanged() {
+        super.firePropertyChanged("state");
+    }
 }
+

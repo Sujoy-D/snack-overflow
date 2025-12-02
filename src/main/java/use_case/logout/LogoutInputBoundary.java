@@ -5,5 +5,10 @@ package use_case.logout;
  * The Interactor will implement this.
  */
 public interface LogoutInputBoundary {
+    /**
+     * Executes the logout use case with the provided input data.
+     *
+     * @param inputData the logout input data containing user information
+     */
     void execute(LogoutInputData inputData);
 }

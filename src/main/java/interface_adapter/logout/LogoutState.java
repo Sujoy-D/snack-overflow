@@ -6,10 +6,12 @@ package interface_adapter.logout;
  */
 public class LogoutState {
     
-    private boolean logoutInProgress = false;
-    private String message = null;
+    private boolean logoutInProgress;
+    private String message;
     
-    public LogoutState() {}
+    public LogoutState() {
+
+    }
     
     public boolean isLogoutInProgress() {
         return logoutInProgress;

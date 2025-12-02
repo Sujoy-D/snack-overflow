@@ -1,8 +1,8 @@
 package interface_adapter.logout;
 
+import interface_adapter.navigation.NavigationController;
 import use_case.logout.LogoutOutputBoundary;
 import use_case.logout.LogoutOutputData;
-import interface_adapter.navigation.NavigationController;
 
 /**
  * Presenter for the Logout Use Case.
@@ -22,7 +22,7 @@ public class LogoutPresenter implements LogoutOutputBoundary {
     @Override
     public void prepareSuccessView(LogoutOutputData outputData) {
         // Update logout state
-        LogoutState newState = new LogoutState();
+        final LogoutState newState = new LogoutState();
         newState.setLogoutInProgress(false);
         newState.setMessage(outputData.getMessage());
         
@@ -36,7 +36,7 @@ public class LogoutPresenter implements LogoutOutputBoundary {
     
     @Override
     public void prepareFailView(String errorMessage) {
-        LogoutState newState = new LogoutState();
+        final LogoutState newState = new LogoutState();
         newState.setLogoutInProgress(false);
         newState.setMessage(errorMessage);
         

@@ -23,7 +23,7 @@ public class SaveRecipeController {
 	 *            the recipe to save
 	 */
 	public void execute(String username, Recipe recipe) {
-		SaveRecipeInputData inputData = new SaveRecipeInputData(username, recipe);
+		final SaveRecipeInputData inputData = new SaveRecipeInputData(username, recipe);
 		saveRecipeInteractor.execute(inputData);
 	}
 }

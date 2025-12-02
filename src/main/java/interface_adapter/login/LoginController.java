@@ -21,7 +21,7 @@ public class LoginController {
      * @param password the password entered by the user
      */
     public void execute(String username, String password) {
-        LoginInputData inputData = new LoginInputData(username, password);
+        final LoginInputData inputData = new LoginInputData(username, password);
         interactor.execute(inputData);
     }
 }

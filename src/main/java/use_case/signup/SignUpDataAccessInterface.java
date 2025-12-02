@@ -1,7 +1,7 @@
 package use_case.signup;
 
 /**
- * Data Access Interface for the Sign Up Use Case.
+ * Data Access Interface for the Sign-Up Use Case.
  * This defines what data operations are needed for sign up functionality.
  */
 public interface SignUpDataAccessInterface {

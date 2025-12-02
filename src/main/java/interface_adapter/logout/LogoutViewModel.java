@@ -7,9 +7,7 @@ import interface_adapter.ViewModel;
  * Manages the state of logout operations and notifies observers of changes.
  */
 public class LogoutViewModel extends ViewModel {
-    
-    public static final String LOGOUT_BUTTON_LABEL = "Logout";
-    
+
     private LogoutState state = new LogoutState();
     
     public LogoutViewModel() {

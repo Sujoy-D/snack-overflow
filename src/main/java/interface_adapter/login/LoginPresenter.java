@@ -1,8 +1,8 @@
 package interface_adapter.login;
 
+import interface_adapter.navigation.NavigationController;
 import use_case.login.LoginOutputBoundary;
 import use_case.login.LoginOutputData;
-import interface_adapter.navigation.NavigationController;
 
 /**
  * Presenter for the Login Use Case.
@@ -22,7 +22,7 @@ public class LoginPresenter implements LoginOutputBoundary {
     @Override
     public void prepareSuccessView(LoginOutputData outputData) {
         // Clear any previous error messages
-        LoginState newState = new LoginState();
+        final LoginState newState = new LoginState();
         newState.setErrorMessage(null);
         newState.setLoginInProgress(false);
         
@@ -36,12 +36,12 @@ public class LoginPresenter implements LoginOutputBoundary {
     
     @Override
     public void prepareFailView(String errorMessage) {
-        LoginState currentState = loginViewModel.getState();
-        LoginState newState = new LoginState();
+        final LoginState currentState = loginViewModel.getState();
+        final LoginState newState = new LoginState();
         
         // Preserve form data but show error
         newState.setUsername(currentState.getUsername());
-        newState.setPassword("");  // Clear password for security
+        newState.setPassword("");
         newState.setErrorMessage(errorMessage);
         newState.setLoginInProgress(false);
         

@@ -22,7 +22,7 @@ public class SignUpController {
      * @param email the email entered by the user (optional)
      */
     public void execute(String username, String password, String email) {
-        SignUpInputData inputData = new SignUpInputData(username, password, email);
+        final SignUpInputData inputData = new SignUpInputData(username, password, email);
         interactor.execute(inputData);
     }
 }
