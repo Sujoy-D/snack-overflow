@@ -1,11 +1,8 @@
 package use_case.checkout_recipe;
 
-import use_case.checkout_recipe.CheckoutRecipeDataAccessInterface;
 import use_case.tagging.AddTagDataAccessInterface;
-import entity.Recipe;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class CheckoutRecipeInteractor implements CheckoutRecipeInputBoundary {
@@ -25,8 +22,9 @@ public class CheckoutRecipeInteractor implements CheckoutRecipeInputBoundary {
     @Override
     public void execute(CheckoutRecipeInputData checkoutRecipeInputData) {
         try {
-            Recipe recipe = checkoutRecipeInputData.getRecipe();
-
+            if (checkoutRecipeInputData.getRecipe() == null) {
+                throw new NullRecipeException(); // Recipe is null
+            }
             Map<String, String> recipeInfo =
                     checkoutRecipeDAO.getRecipeInfo(checkoutRecipeInputData.getRecipe());
 
@@ -37,10 +35,13 @@ public class CheckoutRecipeInteractor implements CheckoutRecipeInputBoundary {
             String username = checkoutRecipeInputData.getUsername();
             ArrayList<String> recipeTags = new ArrayList<>();
 
-            if (username != null && recipeId != null ) {
+            if (username != null) {
+                // Recipe already not null from first if statement in try
                 recipeTags.addAll(taggingDataAccess.getTagsForRecipe(username, recipeId));
             }
-            CheckoutRecipeOutputData outputData = new CheckoutRecipeOutputData(recipeInfo, recipeIngredients, new ArrayList<>(recipeTags));
+
+            CheckoutRecipeOutputData outputData = new CheckoutRecipeOutputData(recipeInfo, recipeIngredients,
+                    new ArrayList<>(recipeTags));
 
             checkoutRecipePresenter.prepareSuccessView(outputData);
         }
