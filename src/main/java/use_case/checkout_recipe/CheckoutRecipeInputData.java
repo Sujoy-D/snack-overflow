@@ -15,17 +15,23 @@ public class CheckoutRecipeInputData {
         this.username = username;
     }
 
-    public String getUsername() { return username; }
+    public String getUsername() {
+        return username;
+    }
 
     public Recipe getRecipe() {
         return recipe;
     }
 
+    /**
+     * Returns the recipe ID of the recipe variable, or null is the recipe is null.
+     * @return the recipe ID of the recipe variable, or null is the recipe is null.
+     */
     public Integer getRecipeId() {
+        Integer returnedInt = null;
         if (recipe != null) {
-            return recipe.getRecipeId();
-        } else {
-            return null;
+            returnedInt = recipe.getRecipeId();
         }
+        return returnedInt;
     }
 }

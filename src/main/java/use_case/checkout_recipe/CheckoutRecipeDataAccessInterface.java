@@ -1,8 +1,9 @@
 package use_case.checkout_recipe;
 
-import entity.Recipe;
 import java.util.ArrayList;
 import java.util.Map;
+
+import entity.Recipe;
 
 /**
  * Data access interface for the checkout recipe use case.

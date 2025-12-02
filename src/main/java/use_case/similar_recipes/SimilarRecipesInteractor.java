@@ -1,7 +1,8 @@
 package use_case.similar_recipes;
 
-import use_case.similar_recipes.SimilarRecipeDataAccessInterface;
-
+/**
+ * Interactor for the Similar Recipes Use Case.
+ */
 public class SimilarRecipesInteractor implements SimilarRecipesInputBoundary {
     private final SimilarRecipeDataAccessInterface similarRecipesDataAccessObject;
     private final SimilarRecipesOutputBoundary similarRecipesPresenter;
@@ -14,18 +15,17 @@ public class SimilarRecipesInteractor implements SimilarRecipesInputBoundary {
 
     @Override
     public void execute(SimilarRecipesInputData similarRecipesInputData) {
-        // TODO: potential expansion by adding recipes and similars to cache
 
         try {
 
-            SimilarRecipesOutputData outputData = new SimilarRecipesOutputData(
+            final SimilarRecipesOutputData outputData = new SimilarRecipesOutputData(
                     similarRecipesDataAccessObject.getSimilarRecipeID(similarRecipesInputData.getRecipeID()));
 
             similarRecipesPresenter.prepareSuccessView(outputData);
 
-        } catch (Exception e) {
-            similarRecipesPresenter.prepareFailView("Failed to get similar recipes: " + e.getMessage());
+        }
+        catch (Exception ex) {
+            similarRecipesPresenter.prepareFailView("Failed to get similar recipes: " + ex.getMessage());
         }
     }
-
 }
