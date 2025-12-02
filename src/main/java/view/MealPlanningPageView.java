@@ -16,22 +16,47 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.List;
 
+/**
+ * A Swing view for meal planning. Allows users to generate, save, load, and view
+ * weekly meal plans, and navigate to recipe checkout pages.
+ */
 public class MealPlanningPageView extends JPanel implements PropertyChangeListener {
+
+    /** The username of the currently logged-in user. */
     private String username;
 
+    /** Controller for navigation actions. */
     private final NavigationController navigationController;
+
+    /** Controller for meal plan generation. */
     private final MealPlanController controller;
+
+    /** ViewModel storing meal plan state. */
     private final MealPlanViewModel viewModel;
 
+    /** Dropdown for selecting diet preferences. */
     private JComboBox<String> dietCombo;
+
+    /** Dropdown for selecting calorie level. */
     private JComboBox<String> calorieCombo;
+
+    /** Dropdown for selecting number of meals per day. */
     private JComboBox<Integer> mealsPerDayCombo;
+
+    /** Button to trigger generation of meal plan. */
     private JButton generateButton;
 
+    /** Cached saved meal plan for the user. */
     private Map<String, List<Recipe>> savedMealPlan;
 
+    /** Panel that displays results (meal plan). */
     private JPanel resultPanel;
 
+    /**
+     * Styles a combo box with consistent UI preferences.
+     *
+     * @param combo the combo box to style
+     */
     private void styleComboBox(JComboBox<?> combo) {
         combo.setBackground(Color.WHITE);
         combo.setForeground(new Color(75, 0, 130));
@@ -40,11 +65,22 @@ public class MealPlanningPageView extends JPanel implements PropertyChangeListen
         combo.setPreferredSize(new Dimension(250, 30));
     }
 
-    public MealPlanningPageView(String username,
-                                NavigationController navigationController,
-                                MealPlanController controller,
-                                MealPlanViewModel viewModel,
-                                JFrame parentFrame) {
+    /**
+     * Constructs the meal planning page view.
+     *
+     * @param username the username of the logged-in user
+     * @param navigationController controller for navigation logic
+     * @param controller controller for meal plan generation
+     * @param viewModel the ViewModel storing meal plan state
+     * @param parentFrame parent window frame
+     */
+    public MealPlanningPageView(
+            String username,
+            NavigationController navigationController,
+            MealPlanController controller,
+            MealPlanViewModel viewModel,
+            JFrame parentFrame) {
+
         this.username = username;
         this.navigationController = navigationController;
         this.controller = controller;
@@ -198,12 +234,22 @@ public class MealPlanningPageView extends JPanel implements PropertyChangeListen
         }
     }
 
+    /**
+     * Reacts to state changes from the ViewModel.
+     *
+     * @param evt the property change event
+     */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         MealPlanState state = (MealPlanState) evt.getNewValue();
         renderResults(state);
     }
 
+    /**
+     * Renders weekly meal plan results into the result panel.
+     *
+     * @param state the state containing meal plan or error
+     */
     private void renderResults(MealPlanState state) {
 
         resultPanel.removeAll();
@@ -279,6 +325,15 @@ public class MealPlanningPageView extends JPanel implements PropertyChangeListen
         repaint();
     }
 
+    /**
+     * Creates and displays the meal planning window.
+     *
+     * @param username username of the user who logged in
+     * @param navigationController controller for navigation
+     * @param controller controller for meal plan generation
+     * @param viewModel ViewModel for meal planning
+     * @return the created JFrame
+     */
     public static JFrame show(String username,
                               NavigationController navigationController,
                               MealPlanController controller,

@@ -10,14 +10,26 @@ import java.beans.PropertyChangeSupport;
  */
 public class MealPlanViewModel {
 
+    /** Supports property change notifications for the view. */
     private final PropertyChangeSupport support = new PropertyChangeSupport(this);
 
+    /** The current state of the meal plan. */
     private MealPlanState state = new MealPlanState();
 
+    /**
+     * Returns the current meal plan state.
+     *
+     * @return the current {@link MealPlanState}
+     */
     public MealPlanState getState() {
         return state;
     }
 
+    /**
+     * Sets the meal plan state.
+     *
+     * @param state the new {@link MealPlanState}
+     */
     public void setState(MealPlanState state) {
         this.state = state;
     }
@@ -30,7 +42,9 @@ public class MealPlanViewModel {
     }
 
     /**
-     * Add a listener (usually a View) to watch for updates.
+     * Adds a listener to observe state changes.
+     *
+     * @param listener the listener to add
      */
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         support.addPropertyChangeListener(listener);

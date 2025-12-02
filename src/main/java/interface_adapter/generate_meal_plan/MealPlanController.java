@@ -12,12 +12,21 @@ public class MealPlanController {
 
     private final MealPlanInputBoundary interactor;
 
+    /**
+     * Constructs a MealPlanController.
+     *
+     * @param interactor the input boundary that handles the use case logic
+     */
     public MealPlanController(MealPlanInputBoundary interactor) {
         this.interactor = interactor;
     }
 
     /**
-     * Trigger the meal plan generation use case.
+     * Triggers the meal plan generation use case.
+     *
+     * @param diet the dietary preference selected by the user
+     * @param calorieLevel the calorie level preference selected by the user
+     * @param mealsPerDay the number of meals per day selected by the user
      */
     public void execute(String diet, String calorieLevel, int mealsPerDay) {
         MealPlanInputData inputData =

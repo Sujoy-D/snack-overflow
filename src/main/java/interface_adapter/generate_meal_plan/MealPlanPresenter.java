@@ -11,10 +11,21 @@ public class MealPlanPresenter implements MealPlanOutputBoundary {
 
     private final MealPlanViewModel viewModel;
 
+    /**
+     * Constructs a MealPlanPresenter.
+     *
+     * @param viewModel the ViewModel used to store and propagate state changes
+     */
     public MealPlanPresenter(MealPlanViewModel viewModel) {
         this.viewModel = viewModel;
     }
 
+    /**
+     * Prepares the success view by updating the ViewModel
+     * with the generated weekly meal plan.
+     *
+     * @param outputData the output data containing the weekly meal plan
+     */
     @Override
     public void prepareSuccessView(MealPlanOutputData outputData) {
 
@@ -26,6 +37,12 @@ public class MealPlanPresenter implements MealPlanOutputBoundary {
         viewModel.firePropertyChanged();
     }
 
+    /**
+     * Prepares the failure view by updating the ViewModel
+     * with the provided error message.
+     *
+     * @param errorMessage the message describing the failure
+     */
     @Override
     public void prepareFailView(String errorMessage) {
 
