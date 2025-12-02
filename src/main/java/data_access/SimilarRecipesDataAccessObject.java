@@ -3,17 +3,16 @@ package data_access;
 import gateways.JavaHttpGateway;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import use_case.similar_recipes.SimilarRecipeDataAccessInterface;
+import use_case.similar_recipes.SimilarRecipesDataAccessInterface;
 
 import java.util.ArrayList;
 
-public class DBSimilarRecipesDataAccessObject implements SimilarRecipeDataAccessInterface {
+public class SimilarRecipesDataAccessObject implements SimilarRecipesDataAccessInterface {
     private final JavaHttpGateway httpGateway;
 
-    public DBSimilarRecipesDataAccessObject(JavaHttpGateway httpGateway) {
+    public SimilarRecipesDataAccessObject(JavaHttpGateway httpGateway) {
         this.httpGateway = httpGateway;
     }
-
 
     @Override
     public ArrayList<Integer> getSimilarRecipeID(int recipeID) throws Exception {
@@ -24,12 +23,14 @@ public class DBSimilarRecipesDataAccessObject implements SimilarRecipeDataAccess
         final ArrayList<Integer> similarRecipeID = new ArrayList<>();
 
         if (!responseBody.isEmpty()) {
-
             for (int i = 0; i < responseBody.length(); i++) {
                 JSONObject recipe = responseBody.getJSONObject(i);
                 similarRecipeID.add(recipe.getInt("id"));
             }
+            return similarRecipeID;
         }
-        return similarRecipeID;
+        else {
+            return null;
+        }
     }
 }

@@ -4,10 +4,10 @@ package use_case.similar_recipes;
  * Interactor for the Similar Recipes Use Case.
  */
 public class SimilarRecipesInteractor implements SimilarRecipesInputBoundary {
-    private final SimilarRecipeDataAccessInterface similarRecipesDataAccessObject;
+    private final SimilarRecipesDataAccessInterface similarRecipesDataAccessObject;
     private final SimilarRecipesOutputBoundary similarRecipesPresenter;
 
-    public SimilarRecipesInteractor(SimilarRecipeDataAccessInterface similarRecipesDataAccessObject,
+    public SimilarRecipesInteractor(SimilarRecipesDataAccessInterface similarRecipesDataAccessObject,
                                     SimilarRecipesOutputBoundary similarRecipesPresenter) {
         this.similarRecipesDataAccessObject = similarRecipesDataAccessObject;
         this.similarRecipesPresenter = similarRecipesPresenter;
@@ -20,6 +20,10 @@ public class SimilarRecipesInteractor implements SimilarRecipesInputBoundary {
 
             final SimilarRecipesOutputData outputData = new SimilarRecipesOutputData(
                     similarRecipesDataAccessObject.getSimilarRecipeID(similarRecipesInputData.getRecipeID()));
+
+            if (outputData.getSimilarRecipes() == null) {
+                throw new Exception();
+            }
 
             similarRecipesPresenter.prepareSuccessView(outputData);
 

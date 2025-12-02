@@ -6,7 +6,7 @@ import java.util.ArrayList;
  * Data access interface for the Similar Recipes use case.
  * Defines the contract for retrieving similar recipes.
  */
-public interface SimilarRecipeDataAccessInterface {
+public interface SimilarRecipesDataAccessInterface {
 
     /**
      * Returns the list of IDs of similar recipes to the Recipe ID provided.
