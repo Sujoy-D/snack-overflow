@@ -1,8 +1,8 @@
 package use_case.generate_meal_plan;
 
-import entity.Recipe;
 import java.util.List;
 import java.util.Map;
+import entity.Recipe;
 
 /**
  * Data access interface for meal plan operations.
@@ -13,7 +13,7 @@ public interface MealPlanDataAccessInterface {
     /**
      * Generate a weekly meal plan from an external API.
      *
-     * @param diet the dietary preference
+     * @param diet         the dietary preference
      * @param calorieLevel the calorie level preference
      * @param mealsPerDay number of meals per day
      * @return A map: day → list of recipes

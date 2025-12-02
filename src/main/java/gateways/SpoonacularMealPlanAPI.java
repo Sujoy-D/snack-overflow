@@ -6,17 +6,38 @@ import entity.Tag;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import use_case.generate_meal_plan.MealPlanDataAccessInterface;
-
 import java.util.*;
 
+/**
+ * A data access implementation that communicates with the Spoonacular API to
+ * generate weekly meal plans and retrieve detailed recipe information.
+ *
+ * This class supports only remote API operations. It does not support
+ * saving or loading meal plans from persistent storage.
+ */
 public class SpoonacularMealPlanAPI implements MealPlanDataAccessInterface {
 
+    /** Gateway for performing HTTP requests to external APIs. */
     private final JavaHttpGateway httpGateway;
 
+    /**
+     * Constructs a SpoonacularMealPlanAPI instance.
+     *
+     * @param httpGateway the HTTP gateway used to send API requests
+     */
     public SpoonacularMealPlanAPI(JavaHttpGateway httpGateway) {
         this.httpGateway = httpGateway;
     }
 
+    /**
+     * Generates a weekly meal plan using the Spoonacular API.
+     *
+     * @param diet the dietary preference (e.g., None, Vegetarian, Vegan)
+     * @param calorieLevel the calorie level (Low, Medium, High)
+     * @param mealsPerDay the number of meals per day to generate
+     * @return a map where each day maps to a list of Recipe objects
+     * @throws Exception if the API request or parsing fails
+     */
     @Override
     public Map<String, List<Recipe>> generateWeeklyMealPlan(
             String diet,
@@ -75,6 +96,12 @@ public class SpoonacularMealPlanAPI implements MealPlanDataAccessInterface {
         return result;
     }
 
+    /**
+     * Retrieves a fully populated Recipe object from the Spoonacular API.
+     *
+     * @param id the recipe ID to fetch
+     * @return a Recipe object, or null if an error occurred
+     */
     private Recipe fetchFullRecipe(int id) {
         try {
             String url = "https://api.spoonacular.com/recipes/" + id + "/information";
@@ -145,6 +172,7 @@ public class SpoonacularMealPlanAPI implements MealPlanDataAccessInterface {
             );
 
         } catch (Exception e) {
+            // Log error instead of printing to standard output
             System.out.println("Error loading detailed recipe " + id + ": " + e.getMessage());
             return null;
         }
@@ -158,7 +186,10 @@ public class SpoonacularMealPlanAPI implements MealPlanDataAccessInterface {
      */
     @Override
     public void saveMealPlan(String username, Map<String, List<Recipe>> mealPlan) {
-        throw new UnsupportedOperationException("SpoonacularMealPlanAPI only handles API operations. Use MealPlanDataAccessObject for storing meal plans to persistent storage.");
+        throw new UnsupportedOperationException(
+                "SpoonacularMealPlanAPI only handles API operations. "
+                + "Use MealPlanDataAccessObject for storing meal plans to persistent storage."
+        );
     }
 
     /**
@@ -169,6 +200,9 @@ public class SpoonacularMealPlanAPI implements MealPlanDataAccessInterface {
      */
     @Override
     public Map<String, List<Recipe>> loadMealPlan(String username) {
-        throw new UnsupportedOperationException("SpoonacularMealPlanAPI only handles API operations. Use MealPlanDataAccessObject for loading meal plans from persistent storage.");
+        throw new UnsupportedOperationException(
+                "SpoonacularMealPlanAPI only handles API operations. "
+                        + "Use MealPlanDataAccessObject for loading meal plans from persistent storage."
+        );
     }
 }

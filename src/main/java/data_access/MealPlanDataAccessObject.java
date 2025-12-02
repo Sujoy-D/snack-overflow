@@ -10,22 +10,31 @@ import java.util.*;
 import use_case.generate_meal_plan.MealPlanDataAccessInterface;
 
 /**
- * Data access class for meal plan operations.
- * Stores meal plans within user documents in the database.
+ * A data access class responsible for storing and loading weekly meal plans
+ * from a MongoDB database.
+ *
+ * This implementation supports only storage operations. For API-based meal
+ * plan generation, use SpoonacularMealPlanAPI.
  */
 public class MealPlanDataAccessObject implements MealPlanDataAccessInterface {
+
+    /** The MongoDB collection storing user documents. */
     private final MongoCollection<Document> userCollection;
-    
+
+    /**
+     * Constructs a MealPlanDataAccessObject, retrieving the "users" collection
+     * from the configured database.
+     */
     public MealPlanDataAccessObject() {
         DatabaseManager dbManager = DatabaseManager.getInstance();
         this.userCollection = dbManager.getDatabase().getCollection("users");
     }
-    
+
     /**
-     * Save a meal plan for a user.
+     * Saves a weekly meal plan for a user by writing it into their document.
      *
-     * @param username the username
-     * @param mealPlan the meal plan to save (day -> list of recipes)
+     * @param username the username whose meal plan is being saved
+     * @param mealPlan the weekly meal plan (day -> list of recipes)
      */
     public void saveMealPlan(String username, Map<String, List<Recipe>> mealPlan) {
         try {
@@ -125,9 +134,12 @@ public class MealPlanDataAccessObject implements MealPlanDataAccessInterface {
             return null;
         }
     }
-    
+
     /**
-     * Convert MongoDB Document to Recipe entity.
+     * Converts a MongoDB Document into a Recipe entity.
+     *
+     * @param recipeDoc the MongoDB document representing a recipe
+     * @return the corresponding Recipe entity
      */
     private Recipe documentToRecipe(Document recipeDoc) {
         Integer recipeId = recipeDoc.getInteger("recipeId");
@@ -179,6 +191,9 @@ public class MealPlanDataAccessObject implements MealPlanDataAccessInterface {
      */
     @Override
     public Map<String, List<Recipe>> generateWeeklyMealPlan(String diet, String calorieLevel, int mealsPerDay) throws Exception {
-        throw new UnsupportedOperationException("MealPlanDataAccessObject only handles storage operations. Use SpoonacularMealPlanAPI for generating meal plans from the API.");
+        throw new UnsupportedOperationException(
+                "MealPlanDataAccessObject only handles storage operations. "
+                        + "Use SpoonacularMealPlanAPI for generating meal plans from the API."
+        );
     }
 }
