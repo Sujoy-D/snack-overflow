@@ -11,11 +11,13 @@ public class SimilarRecipesPresenter implements SimilarRecipesOutputBoundary {
 
     private final SimilarRecipesViewModel viewModel;
 
-    public SimilarRecipesPresenter(SimilarRecipesViewModel viewModel) {this.viewModel = viewModel;}
+    public SimilarRecipesPresenter(SimilarRecipesViewModel viewModel) {
+        this.viewModel = viewModel;
+    }
 
     @Override
     public void prepareSuccessView(SimilarRecipesOutputData outputData) {
-        SimilarRecipesState newState = new SimilarRecipesState();
+        final SimilarRecipesState newState = new SimilarRecipesState();
         newState.setErrorMessage(null);
         newState.setSimilarRecipes(outputData.getSimilarRecipes());
 
@@ -26,7 +28,7 @@ public class SimilarRecipesPresenter implements SimilarRecipesOutputBoundary {
 
     @Override
     public void prepareFailView(String errorMessage) {
-        SimilarRecipesState newState = new SimilarRecipesState();
+        final SimilarRecipesState newState = new SimilarRecipesState();
         newState.setErrorMessage(errorMessage);
 
         // Update ViewModel

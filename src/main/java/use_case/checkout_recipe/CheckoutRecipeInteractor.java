@@ -1,23 +1,23 @@
 package use_case.checkout_recipe;
 
-import use_case.checkout_recipe.CheckoutRecipeDataAccessInterface;
-import use_case.tagging.AddTagDataAccessInterface;
-import entity.Recipe;
-
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
+import use_case.tagging.AddTagDataAccessInterface;
+
+/**
+ * Interactor for the Checkout Recipe Use Case.
+ */
 public class CheckoutRecipeInteractor implements CheckoutRecipeInputBoundary {
 
-    private final CheckoutRecipeDataAccessInterface checkoutRecipeDAO;
+    private final CheckoutRecipeDataAccessInterface checkoutRecipeDataAccessObject;
     private final CheckoutRecipeOutputBoundary checkoutRecipePresenter;
     private final AddTagDataAccessInterface taggingDataAccess;
 
-    public CheckoutRecipeInteractor(CheckoutRecipeDataAccessInterface checkoutRecipeDAO,
+    public CheckoutRecipeInteractor(CheckoutRecipeDataAccessInterface checkoutRecipeDataAccessObject,
                                     CheckoutRecipeOutputBoundary checkoutRecipePresenter,
                                     AddTagDataAccessInterface taggingDataAccess) {
-        this.checkoutRecipeDAO = checkoutRecipeDAO;
+        this.checkoutRecipeDataAccessObject = checkoutRecipeDataAccessObject;
         this.checkoutRecipePresenter = checkoutRecipePresenter;
         this.taggingDataAccess = taggingDataAccess;
     }
@@ -25,28 +25,34 @@ public class CheckoutRecipeInteractor implements CheckoutRecipeInputBoundary {
     @Override
     public void execute(CheckoutRecipeInputData checkoutRecipeInputData) {
         try {
-            Recipe recipe = checkoutRecipeInputData.getRecipe();
+            final Map<String, String> recipeInfo =
+                    checkoutRecipeDataAccessObject.getRecipeInfo(checkoutRecipeInputData.getRecipe());
 
-            Map<String, String> recipeInfo =
-                    checkoutRecipeDAO.getRecipeInfo(checkoutRecipeInputData.getRecipe());
+            final ArrayList<ArrayList<String>> recipeIngredients =
+                    checkoutRecipeDataAccessObject.getRecipeIngredients(checkoutRecipeInputData.getRecipe());
 
-            ArrayList<ArrayList<String>> recipeIngredients =
-                    checkoutRecipeDAO.getRecipeIngredients(checkoutRecipeInputData.getRecipe());
+            final Integer recipeId = checkoutRecipeInputData.getRecipeId();
 
-            Integer recipeId = checkoutRecipeInputData.getRecipeId();
-            String username = checkoutRecipeInputData.getUsername();
-            ArrayList<String> recipeTags = new ArrayList<>();
+            if (recipeId == null) {
+                throw new NullRecipeException();
+            }
 
-            if (username != null && recipeId != null ) {
+            final String username = checkoutRecipeInputData.getUsername();
+            final ArrayList<String> recipeTags = new ArrayList<>();
+
+            if (username != null) {
+                // Recipe already not null from first if statement in try
                 recipeTags.addAll(taggingDataAccess.getTagsForRecipe(username, recipeId));
             }
-            CheckoutRecipeOutputData outputData = new CheckoutRecipeOutputData(recipeInfo, recipeIngredients, new ArrayList<>(recipeTags));
+
+            final CheckoutRecipeOutputData outputData = new CheckoutRecipeOutputData(recipeInfo, recipeIngredients,
+                    new ArrayList<>(recipeTags));
 
             checkoutRecipePresenter.prepareSuccessView(outputData);
         }
-        catch (Exception e) {
+        catch (Exception ex) {
             checkoutRecipePresenter.prepareFailView("Sorry, this recipe cannot be viewed: "
-                                                            + e.getMessage() + "\nPlease try another recipe.");
+                                                            + ex.getMessage() + "\nPlease try another recipe.");
         }
     }
 }

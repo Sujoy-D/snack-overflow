@@ -3,6 +3,9 @@ package interface_adapter.checkout_recipe;
 import use_case.checkout_recipe.CheckoutRecipeOutputBoundary;
 import use_case.checkout_recipe.CheckoutRecipeOutputData;
 
+/**
+ * The Presenter for the Checkout Recipe Use Case.
+ */
 public class CheckoutRecipePresenter implements CheckoutRecipeOutputBoundary {
 
     private final CheckoutRecipeViewModel checkoutRecipeViewModel;
@@ -13,7 +16,7 @@ public class CheckoutRecipePresenter implements CheckoutRecipeOutputBoundary {
 
     @Override
     public void prepareSuccessView(CheckoutRecipeOutputData outputData) {
-        CheckoutRecipeState newState = new CheckoutRecipeState();
+        final CheckoutRecipeState newState = new CheckoutRecipeState();
         newState.setRecipeInfo(outputData.getRecipeInfo());
         newState.setRecipeIngredients(outputData.getRecipeIngredients());
         newState.setRecipeTags(outputData.getRecipeTags());
@@ -25,7 +28,7 @@ public class CheckoutRecipePresenter implements CheckoutRecipeOutputBoundary {
 
     @Override
     public void prepareFailView(String errorMessage) {
-        CheckoutRecipeState newState = new CheckoutRecipeState();
+        final CheckoutRecipeState newState = new CheckoutRecipeState();
         newState.setErrorMessage(errorMessage);
 
         // Update ViewModel
