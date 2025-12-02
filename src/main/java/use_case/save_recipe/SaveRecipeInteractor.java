@@ -22,6 +22,7 @@ public class SaveRecipeInteractor implements SaveRecipeInputBoundary {
 			// Check if recipe is already saved
 			if (saveRecipeDataAccess.isRecipeSaved(username, recipe.getRecipeId())) {
                 saveRecipePresenter.prepareFailView("Recipe '" + recipe.getTitle() + "' is already saved!");
+				return;
 			}
 
 			// Save the recipe
@@ -36,7 +37,7 @@ public class SaveRecipeInteractor implements SaveRecipeInputBoundary {
 				saveRecipePresenter.prepareFailView("Failed to save recipe. Please try again.");
 			}
 		}
-        catch (IllegalArgumentException error) {
+        catch (Exception error) {
 			saveRecipePresenter.prepareFailView("Error saving recipe: " + error.getMessage());
 		}
 	}

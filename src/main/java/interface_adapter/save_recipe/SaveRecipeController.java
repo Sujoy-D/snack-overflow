@@ -8,22 +8,22 @@ import use_case.save_recipe.SaveRecipeInputData;
  * Controller for the Save Recipe Use Case.
  */
 public class SaveRecipeController {
-	private final SaveRecipeInputBoundary saveRecipeInteractor;
+    private final SaveRecipeInputBoundary saveRecipeInteractor;
 
-	public SaveRecipeController(SaveRecipeInputBoundary saveRecipeInteractor) {
-		this.saveRecipeInteractor = saveRecipeInteractor;
-	}
+    public SaveRecipeController(SaveRecipeInputBoundary saveRecipeInteractor) {
+        this.saveRecipeInteractor = saveRecipeInteractor;
+    }
 
-	/**
-	 * Executes the save recipe use case.
-	 *
-	 * @param username
-	 *            the username of the current user
-	 * @param recipe
-	 *            the recipe to save
-	 */
-	public void execute(String username, Recipe recipe) {
-		final SaveRecipeInputData inputData = new SaveRecipeInputData(username, recipe);
-		saveRecipeInteractor.execute(inputData);
-	}
+    /**
+     * Executes the save recipe use case.
+     *
+     * @param username
+     *            the username of the current user
+     * @param recipe
+     *            the recipe to save
+     */
+    public void execute(String username, Recipe recipe) {
+        final SaveRecipeInputData inputData = new SaveRecipeInputData(username, recipe);
+        saveRecipeInteractor.execute(inputData);
+    }
 }

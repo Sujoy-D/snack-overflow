@@ -1,7 +1,5 @@
 package use_case.signup;
 
-import java.util.Objects;
-
 /**
  * Interactor for the Sign Up Use Case.
  * Contains the business logic for user registration.
@@ -26,25 +24,30 @@ public class SignUpInteractor implements SignUpInputBoundary {
         // Validate input
         if (username == null || username.trim().isEmpty()) {
             presenter.prepareFailView("Username cannot be empty");
+            return;
         }
 
         if (password == null || password.trim().isEmpty()) {
             presenter.prepareFailView("Password cannot be empty");
+            return;
         }
 
         // Additional validation rules
-        if (Objects.requireNonNull(username).length() < 3) {
+        if (username.length() < 3) {
             presenter.prepareFailView("Username must be at least 3 characters long");
+            return;
         }
 
-        if (Objects.requireNonNull(password).length() < 6) {
+        if (password.length() < 6) {
             presenter.prepareFailView("Password must be at least 6 characters long");
+            return;
         }
         
         try {
             // Check if username already exists
             if (signUpDataAccess.userExists(username)) {
                 presenter.prepareFailView("Username already exists");
+                return;
             }
             
             // Save the new user
@@ -56,7 +59,7 @@ public class SignUpInteractor implements SignUpInputBoundary {
             presenter.prepareSuccessView(outputData);
             
         }
-        catch (RuntimeException error) {
+        catch (Exception error) {
             presenter.prepareFailView("Sign up failed due to system error");
         }
     }

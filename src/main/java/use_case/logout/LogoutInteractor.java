@@ -22,6 +22,7 @@ public class LogoutInteractor implements LogoutInputBoundary {
         // Validate input
         if (username == null || username.trim().isEmpty()) {
             presenter.prepareFailView("No user is currently logged in");
+            return;
         }
         
         try {
@@ -37,7 +38,7 @@ public class LogoutInteractor implements LogoutInputBoundary {
             presenter.prepareSuccessView(outputData);
             
         }
-        catch (IllegalArgumentException error) {
+        catch (Exception error) {
             presenter.prepareFailView("Logout failed due to system error");
         }
     }

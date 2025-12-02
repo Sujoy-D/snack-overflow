@@ -51,7 +51,7 @@ public class LoginInteractor implements LoginInputBoundary {
                     presenter.prepareFailView("Invalid username or password");
                 }
             }
-            catch (IllegalArgumentException error) {
+            catch (Exception error) {
                 presenter.prepareFailView("Login failed due to system error");
             }
         }
