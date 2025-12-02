@@ -180,6 +180,32 @@ class CheckoutRecipeInteractorTest {
         assertFalse(presenter.isSuccessCalled());
     }
 
+    @Test
+    void executeHandlesNullRecipeException() {
+        // Given - Tagging service throws exception
+        MockCheckoutRecipeDataAccess dataAccess = new MockCheckoutRecipeDataAccess();
+        MockCheckoutRecipePresenter presenter = new MockCheckoutRecipePresenter();
+        MockTaggingDataAccess taggingDataAccess = new MockTaggingDataAccess();
+        CheckoutRecipeInteractor interactor = new CheckoutRecipeInteractor(
+                dataAccess, presenter, taggingDataAccess);
+
+        dataAccess.setRecipeInfo(new HashMap<>());
+        dataAccess.setRecipeIngredients(new ArrayList<>());
+        taggingDataAccess.setThrowException(false);
+
+
+        // Create null recipe in InputData - causes NullRecipeException
+        CheckoutRecipeInputData inputData = new CheckoutRecipeInputData(
+                null, "test-user");
+
+        // When
+        interactor.execute(inputData);
+
+        // Then - Should handle NullRecipeException
+        assertTrue(presenter.isFailureCalled());
+        assertFalse(presenter.isSuccessCalled());
+    }
+
     private Recipe createTestRecipe() {
         List<Ingredient> ingredients = Arrays.asList(
             new Ingredient("Flour", "2", "cups"),
