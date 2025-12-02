@@ -1,27 +1,36 @@
 package data_access;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 import entity.Ingredient;
 import entity.Recipe;
 import entity.Tag;
 import use_case.checkout_recipe.CheckoutRecipeDataAccessInterface;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
+/**
+ * The Data Access Object for the Checkout Recipe Use Case.
+ */
 public class CheckoutRecipeDataAccessObject implements CheckoutRecipeDataAccessInterface {
 
     @Override
     public Map<String, String> getRecipeInfo(Recipe recipe) throws Exception {
         final Map<String, String> recipeInfo = new HashMap<>();
+        final String notSpecifiedString = "Not specified";
 
-        recipeInfo.put("recipeID", recipe.getRecipeId() != null ? recipe.getRecipeId().toString() : "Unknown");
-        recipeInfo.put("title", recipe.getTitle() != null ? recipe.getTitle() : "Unknown Recipe");
-        recipeInfo.put("cooking time", recipe.getCookingTime() != null ? recipe.getCookingTime().toString() : "Not specified");
-        recipeInfo.put("cuisine", recipe.getCuisine() != null ? recipe.getCuisine() : "Not specified");
-        recipeInfo.put("meal type", recipe.getMealType() != null ? recipe.getMealType() : "Not specified");
-        recipeInfo.put("instructions", recipe.getInstructions() != null ? recipe.getInstructions() : "No instructions available");
-        recipeInfo.put("serving size", recipe.getServingSize() != null ? recipe.getServingSize().toString() : "Not specified");
+        recipeInfo.put("recipeID", recipe.getRecipeId() != null
+                ? recipe.getRecipeId().toString() : "Unknown");
+        recipeInfo.put("title", recipe.getTitle() != null
+                ? recipe.getTitle() : "Unknown Recipe");
+        recipeInfo.put("cooking time", recipe.getCookingTime() != null
+                ? recipe.getCookingTime().toString() : notSpecifiedString);
+        recipeInfo.put("cuisine", recipe.getCuisine() != null ? recipe.getCuisine() : notSpecifiedString);
+        recipeInfo.put("meal type", recipe.getMealType() != null ? recipe.getMealType() : notSpecifiedString);
+        recipeInfo.put("instructions", recipe.getInstructions() != null
+                ? recipe.getInstructions() : "No instructions available");
+        recipeInfo.put("serving size", recipe.getServingSize() != null
+                ? recipe.getServingSize().toString() : notSpecifiedString);
 
         return recipeInfo;
     }
@@ -32,7 +41,7 @@ public class CheckoutRecipeDataAccessObject implements CheckoutRecipeDataAccessI
 
         if (recipe.getIngredients() != null) {
             for (Ingredient ingredient : recipe.getIngredients()) {
-                ArrayList<String> ingredientData = new ArrayList<>();
+                final ArrayList<String> ingredientData = new ArrayList<>();
                 ingredientData.add(ingredient.getName() != null ? ingredient.getName() : "Unknown ingredient");
                 ingredientData.add(ingredient.getQuantity() != null ? ingredient.getQuantity() : "?");
                 ingredientData.add(ingredient.getUnit() != null ? ingredient.getUnit() : "");

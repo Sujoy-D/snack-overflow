@@ -5,12 +5,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The State for the Checkout Recipe Use Case.
+ */
 public class CheckoutRecipeState {
 
     private Map<String, String> recipeInfo = new HashMap<>();
     private List<ArrayList<String>> recipeIngredients = new ArrayList<>();
     private ArrayList<String> recipeTags = new ArrayList<>();
-    private String errorMessage = null;
+    private String errorMessage;
 
     public Map<String, String> getRecipeInfo() {
         return recipeInfo;
