@@ -1,13 +1,12 @@
 package use_case.add_recipe;
 
 import entity.Recipe;
-import use_case.add_recipe.AddRecipeDataAccessInterface;
 
 public class AddRecipeInteractor implements AddRecipeInputBoundary {
 
     private final AddRecipeDataAccessInterface dataAccess;
     private final AddRecipeOutputBoundary presenter;
-    private final String username;  // current user
+    private final String username;
 
     public AddRecipeInteractor(AddRecipeDataAccessInterface dataAccess,
                                AddRecipeOutputBoundary presenter,
@@ -27,8 +26,7 @@ public class AddRecipeInteractor implements AddRecipeInputBoundary {
             presenter.present(new AddRecipeOutputData(false, "Ingredients cannot be empty"));
             return;
         }
-
-        Recipe recipe = new Recipe(
+        final Recipe recipe = new Recipe(
                 inputData.getRecipeId(),
                 inputData.getIngredients(), inputData.getTitle(),
                 inputData.getInstructions(),
@@ -41,5 +39,6 @@ public class AddRecipeInteractor implements AddRecipeInputBoundary {
 
         dataAccess.saveRecipe(username, recipe);
         presenter.present(new AddRecipeOutputData(true, "Recipe added successfully!"));
+
     }
 }

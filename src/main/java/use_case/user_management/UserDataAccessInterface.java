@@ -1,8 +1,9 @@
 package use_case.user_management;
 
-import entity.User;
-import entity.Recipe;
 import java.util.List;
+
+import entity.Recipe;
+import entity.User;
 
 /**
  * Data access interface for user management operations.

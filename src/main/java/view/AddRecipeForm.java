@@ -1,15 +1,16 @@
 package view;
 
-import data_access.RecipeDataAccessObject;
-import entity.Ingredient;
-import entity.Tag;
+// Java standard library imports
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.awt.*;
-import java.util.List;
-import java.util.ArrayList;
 
+import data_access.RecipeDataAccessObject;
+import entity.Ingredient;
+import entity.Tag;
 import interface_adapter.add_recipe.AddRecipeController;
 import interface_adapter.add_recipe.AddRecipePresenter;
 import interface_adapter.add_recipe.AddRecipeViewModel;
@@ -18,7 +19,7 @@ import use_case.add_recipe.AddRecipeInteractor;
 
 public class AddRecipeForm {
 
-    private int recipeID; // auto-generated if needed
+    private int recipeID;
 
     public JPanel getRecipeForm(String username, NavigationController navigationController) {
 
@@ -96,7 +97,7 @@ public class AddRecipeForm {
         ingredientsTable.setGridColor(Color.GRAY);
 
         JScrollPane ingScroll = new JScrollPane(ingredientsTable);
-        ingScroll.setPreferredSize(new Dimension(600, 120)); // <-- control table height
+        ingScroll.setPreferredSize(new Dimension(600, 120));
         ingredientsPanel.add(ingScroll, BorderLayout.CENTER);
 
         JPanel addIngPanel = new JPanel();

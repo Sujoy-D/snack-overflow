@@ -1,8 +1,9 @@
 package use_case.add_recipe;
 
+import java.util.List;
+
 import entity.Ingredient;
 import entity.Tag;
-import java.util.List;
 
 public class AddRecipeInputData {
     private final Integer recipeId;
@@ -30,13 +31,39 @@ public class AddRecipeInputData {
     }
 
     // Getters
-    public Integer getRecipeId() { return recipeId; }
-    public String getTitle() { return title; }
-    public List<Ingredient> getIngredients() { return ingredients; }
-    public String getInstructions() { return instructions; }
-    public String getCuisine() { return cuisine; }
-    public Integer getCookingTime() { return cookingTime; }
-    public String getMealType() { return mealType; }
-    public Integer getServingSize() { return servingSize; }
-    public List<Tag> getTags() { return tags; }
+    public Integer getRecipeId() {
+        return recipeId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public List<Ingredient> getIngredients() {
+        return ingredients;
+    }
+
+    public String getInstructions() {
+        return instructions;
+    }
+
+    public String getCuisine() {
+        return cuisine;
+    }
+
+    public Integer getCookingTime() {
+        return cookingTime;
+    }
+
+    public String getMealType() {
+        return mealType;
+    }
+
+    public Integer getServingSize() {
+        return servingSize;
+    }
+
+    public List<Tag> getTags() {
+        return tags;
+    }
 }
