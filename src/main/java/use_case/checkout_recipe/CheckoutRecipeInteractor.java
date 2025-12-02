@@ -25,9 +25,6 @@ public class CheckoutRecipeInteractor implements CheckoutRecipeInputBoundary {
     @Override
     public void execute(CheckoutRecipeInputData checkoutRecipeInputData) {
         try {
-            if (checkoutRecipeInputData.getRecipe() == null) {
-                throw new NullRecipeException();
-            }
             final Map<String, String> recipeInfo =
                     checkoutRecipeDataAccessObject.getRecipeInfo(checkoutRecipeInputData.getRecipe());
 
@@ -35,6 +32,11 @@ public class CheckoutRecipeInteractor implements CheckoutRecipeInputBoundary {
                     checkoutRecipeDataAccessObject.getRecipeIngredients(checkoutRecipeInputData.getRecipe());
 
             final Integer recipeId = checkoutRecipeInputData.getRecipeId();
+
+            if (recipeId == null) {
+                throw new NullRecipeException();
+            }
+
             final String username = checkoutRecipeInputData.getUsername();
             final ArrayList<String> recipeTags = new ArrayList<>();
 

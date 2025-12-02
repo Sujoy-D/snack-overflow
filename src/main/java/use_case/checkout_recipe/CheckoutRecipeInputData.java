@@ -24,10 +24,14 @@ public class CheckoutRecipeInputData {
     }
 
     /**
-     * Returns the recipe ID of the recipe variable. This method is always used from a non-null recipe context.
-     * @return the recipe ID of the recipe variable.
+     * Returns the recipe ID of the recipe variable, or null is the recipe is null.
+     * @return the recipe ID of the recipe variable, or null is the recipe is null.
      */
     public Integer getRecipeId() {
-        return recipe.getRecipeId();
+        Integer returnedInt = null;
+        if (recipe != null) {
+            returnedInt = recipe.getRecipeId();
+        }
+        return returnedInt;
     }
 }
