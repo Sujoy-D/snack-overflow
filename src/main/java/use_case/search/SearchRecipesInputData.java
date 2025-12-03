@@ -1,7 +1,7 @@
 package use_case.search;
 
 /**
- * Input data for the search use case
+ * Input data for the search use case.
  */
 public class SearchRecipesInputData {
     private final String ingredientsCsv;

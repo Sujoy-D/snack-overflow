@@ -7,7 +7,7 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 /**
- * Value object representing search filters
+ * Value object representing search filters.
  */
 public class SearchFilters {
     private final Integer maxCookingTimeMinutes;
@@ -29,22 +29,29 @@ public class SearchFilters {
     }
     
     private String normalizeString(String value) {
-        if (value == null) {
-            return null;
+        String result = null;
+        if (value != null) {
+            final String trimmed = value.trim();
+            if (!trimmed.isEmpty()) {
+                result = trimmed;
+            }
         }
-        String trimmed = value.trim();
-        return trimmed.isEmpty() ? null : trimmed;
+        return result;
     }
     
     private List<String> normalizeList(List<String> values) {
+        final List<String> result;
         if (values == null) {
-            return Collections.emptyList();
+            result = Collections.emptyList();
         }
-        return values.stream()
-                .map(String::trim)
-                .filter(v -> !v.isEmpty())
-                .map(v -> v.toLowerCase(Locale.ROOT))
-                .collect(Collectors.toCollection(ArrayList::new));
+        else {
+            result = values.stream()
+                    .map(String::trim)
+                    .filter(value -> !value.isEmpty())
+                    .map(value -> value.toLowerCase(Locale.ROOT))
+                    .collect(Collectors.toCollection(ArrayList::new));
+        }
+        return result;
     }
     
     public Integer getMaxCookingTimeMinutes() {

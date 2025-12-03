@@ -1,13 +1,13 @@
 package use_case.search;
 
-import entity.Recipe;
-
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.ArrayList;
+
+import entity.Recipe;
 
 /**
- * Interactor that validates search requests and delegates to the gateway
+ * Interactor that validates search requests and delegates to the gateway.
  */
 public class SearchRecipesInteractor implements SearchRecipesInputBoundary {
     private final SearchRecipesGateway searchGateway;
@@ -21,27 +21,39 @@ public class SearchRecipesInteractor implements SearchRecipesInputBoundary {
     
     @Override
     public void execute(SearchRecipesInputData inputData) {
-        String ingredientsCsv = inputData.getIngredientsCsv();
-        int numberOfResults = inputData.getNumberOfResults();
-        SearchFilters filters = inputData.getFilters();
-        
+        final String ingredientsCsv = inputData.getIngredientsCsv();
+        final int numberOfResults = inputData.getNumberOfResults();
+        final SearchFilters filters = inputData.getFilters();
+
+        final String validationError = validateInput(ingredientsCsv, filters);
+        if (validationError == null) {
+            performSearch(ingredientsCsv, numberOfResults, filters);
+        }
+        else {
+            presenter.presentFailure(validationError);
+        }
+    }
+
+    private String validateInput(String ingredientsCsv, SearchFilters filters) {
+        String errorMessage = null;
+
         if ((ingredientsCsv == null || ingredientsCsv.trim().isEmpty())
                 && (filters == null || filters.isEmpty())) {
-            presenter.presentFailure("Add ingredients or filters to search.");
-            return;
+            errorMessage = "Add ingredients or filters to search.";
         }
-        
-        if (filters != null && filters.getMaxCookingTimeMinutes() != null
+        else if (filters != null && filters.getMaxCookingTimeMinutes() != null
                 && filters.getMaxCookingTimeMinutes() <= 0) {
-            presenter.presentFailure("Maximum cooking time must be a positive number.");
-            return;
+            errorMessage = "Maximum cooking time must be a positive number.";
+        }
+        else if (hasIngredientConflict(ingredientsCsv, filters)) {
+            errorMessage = "Conflicting filters: ingredients to include overlap with exclusions.";
         }
         
-        if (hasIngredientConflict(ingredientsCsv, filters)) {
-            presenter.presentFailure("Conflicting filters: ingredients to include overlap with exclusions.");
-            return;
-        }
-        
+        return errorMessage;
+    }
+
+    @SuppressWarnings("IllegalCatch")
+    private void performSearch(String ingredientsCsv, int numberOfResults, SearchFilters filters) {
         try {
             List<Recipe> recipes = searchGateway.searchRecipes(
                     normalizeCsv(ingredientsCsv),
@@ -51,44 +63,59 @@ public class SearchRecipesInteractor implements SearchRecipesInputBoundary {
                 recipes = Collections.emptyList();
             }
             presenter.presentSuccess(new SearchRecipesOutputData(recipes));
-        } catch (Exception e) {
-            presenter.presentFailure("Unable to fetch recipes: " + e.getMessage());
+        }
+        catch (RuntimeException runtimeException) {
+            presenter.presentFailure("Unable to fetch recipes: " + runtimeException.getMessage());
+        }
+        catch (InterruptedException interruptedException) {
+            Thread.currentThread().interrupt();
+            presenter.presentFailure("Search was interrupted: " + interruptedException.getMessage());
+        }
+        catch (java.io.IOException ioException) {
+            presenter.presentFailure("Network error while searching: " + ioException.getMessage());
+        }
+        catch (Exception exception) {
+            presenter.presentFailure("Unable to fetch recipes: " + exception.getMessage());
         }
     }
-    
+
     private boolean hasIngredientConflict(String includeCsv, SearchFilters filters) {
-        if (filters == null || filters.getAllergens().isEmpty()) {
-            return false;
-        }
-        List<String> includes = normalizeToList(includeCsv);
-        if (includes.isEmpty()) {
-            return false;
-        }
-        for (String include : includes) {
-            if (filters.getAllergens().contains(include.toLowerCase())) {
-                return true;
+        boolean hasConflict = false;
+        if (filters != null && !filters.getAllergens().isEmpty()) {
+            final List<String> includes = normalizeToList(includeCsv);
+            if (!includes.isEmpty()) {
+                for (String include : includes) {
+                    if (filters.getAllergens().contains(include.toLowerCase())) {
+                        hasConflict = true;
+                        break;
+                    }
+                }
             }
         }
-        return false;
+        return hasConflict;
     }
     
     private String normalizeCsv(String csv) {
-        List<String> parts = normalizeToList(csv);
+        final List<String> parts = normalizeToList(csv);
         return String.join(",", parts);
     }
     
     private List<String> normalizeToList(String csv) {
+        final List<String> result;
         if (csv == null) {
-            return Collections.emptyList();
+            result = Collections.emptyList();
         }
-        String[] parts = csv.split(",");
-        List<String> cleaned = new ArrayList<>();
-        for (String part : parts) {
-            String ingredient = part.trim().toLowerCase();
-            if (!ingredient.isEmpty()) {
-                cleaned.add(ingredient);
+        else {
+            final String[] parts = csv.split(",");
+            final List<String> cleaned = new ArrayList<>();
+            for (String part : parts) {
+                final String ingredient = part.trim().toLowerCase();
+                if (!ingredient.isEmpty()) {
+                    cleaned.add(ingredient);
+                }
             }
+            result = cleaned;
         }
-        return cleaned;
+        return result;
     }
 }

@@ -1,11 +1,11 @@
 package use_case.search;
 
-import entity.Recipe;
-
 import java.util.List;
 
+import entity.Recipe;
+
 /**
- * Output data carrying the searched recipes
+ * Output data carrying the searched recipes.
  */
 public class SearchRecipesOutputData {
     private final List<Recipe> recipes;
