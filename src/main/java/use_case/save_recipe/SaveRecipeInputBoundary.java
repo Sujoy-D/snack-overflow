@@ -9,5 +9,5 @@ public interface SaveRecipeInputBoundary {
      *
      * @param saveRecipeInputData the input data containing recipe and user information
      */
-	void execute(SaveRecipeInputData saveRecipeInputData);
+    void execute(SaveRecipeInputData saveRecipeInputData);
 }
