@@ -1,5 +1,7 @@
 package use_case.signup;
 
+import java.util.Objects;
+
 /**
  * Interactor for the Sign Up Use Case.
  * Contains the business logic for user registration.
@@ -21,43 +23,54 @@ public class SignUpInteractor implements SignUpInputBoundary {
         final String password = inputData.getPassword();
         final String email = inputData.getEmail();
         
-        // Validate input
+        // Validate input and get error message if any
+        final String validationError = validateInput(username, password);
+        
+        if (validationError != null) {
+            presenter.prepareFailView(validationError);
+        }
+        else {
+            processSignUp(username, password, email);
+        }
+    }
+    
+    private String validateInput(String username, String password) {
+        String errorMessage = null;
+        
         if (username == null || username.trim().isEmpty()) {
-            presenter.prepareFailView("Username cannot be empty");
-            return;
+            errorMessage = "Username cannot be empty";
         }
-
-        if (password == null || password.trim().isEmpty()) {
-            presenter.prepareFailView("Password cannot be empty");
-            return;
+        else if (password == null || password.trim().isEmpty()) {
+            errorMessage = "Password cannot be empty";
         }
-
-        // Additional validation rules
-        if (username.length() < 3) {
-            presenter.prepareFailView("Username must be at least 3 characters long");
-            return;
+        else if (username.length() < 3) {
+            errorMessage = "Username must be at least 3 characters long";
         }
-
-        if (password.length() < 6) {
-            presenter.prepareFailView("Password must be at least 6 characters long");
-            return;
+        else if (password.length() < 6) {
+            errorMessage = "Password must be at least 6 characters long";
         }
         
+        return errorMessage;
+    }
+    
+    private void processSignUp(String username, String password, String email) {
         try {
             // Check if username already exists
             if (signUpDataAccess.userExists(username)) {
                 presenter.prepareFailView("Username already exists");
-                return;
             }
-            
-            // Save the new user
-            signUpDataAccess.saveUser(username, password, email != null ? email : "");
+            else {
+                // Save the new user
+                final String email1;
+                email1 = Objects.requireNonNullElse(email, "");
 
-            // Prepare success response
-            final SignUpOutputData outputData = new SignUpOutputData(
-                username, true, "Account created successfully!");
-            presenter.prepareSuccessView(outputData);
-            
+                signUpDataAccess.saveUser(username, password, email1);
+
+                // Prepare success response
+                final SignUpOutputData outputData = new SignUpOutputData(
+                    username, true, "Account created successfully!");
+                presenter.prepareSuccessView(outputData);
+            }
         }
         catch (Exception error) {
             presenter.prepareFailView("Sign up failed due to system error");
