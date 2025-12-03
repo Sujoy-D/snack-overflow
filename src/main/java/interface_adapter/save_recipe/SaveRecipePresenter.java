@@ -1,14 +1,15 @@
 package interface_adapter.save_recipe;
 
+import javax.swing.JOptionPane;
+
 import use_case.save_recipe.SaveRecipeOutputBoundary;
 import use_case.save_recipe.SaveRecipeOutputData;
-import javax.swing.JOptionPane;
 
 /**
  * Presenter for the Save Recipe Use Case.
  */
 public class SaveRecipePresenter implements SaveRecipeOutputBoundary {
-	private SaveRecipeViewModel saveRecipeViewModel;
+	private final SaveRecipeViewModel saveRecipeViewModel;
 
 	public SaveRecipePresenter(SaveRecipeViewModel saveRecipeViewModel) {
 		this.saveRecipeViewModel = saveRecipeViewModel;
@@ -16,11 +17,11 @@ public class SaveRecipePresenter implements SaveRecipeOutputBoundary {
 
 	@Override
 	public void prepareSuccessView(SaveRecipeOutputData outputData) {
-		saveRecipeViewModel.setState(new SaveRecipeState(true, outputData.getMessage(), outputData.getRecipeName()));
+        saveRecipeViewModel.setState(new SaveRecipeState(true, outputData.getMessage(), outputData.getRecipeName()));
 		saveRecipeViewModel.firePropertyChanged();
 
-		// Show success message to user
-		JOptionPane.showMessageDialog(null, outputData.getMessage(), "Recipe Saved", JOptionPane.INFORMATION_MESSAGE);
+        // Show success message to user
+        JOptionPane.showMessageDialog(null, outputData.getMessage(), "Recipe Saved", JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	@Override

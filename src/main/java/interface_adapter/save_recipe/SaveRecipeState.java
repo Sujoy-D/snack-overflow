@@ -6,7 +6,7 @@ package interface_adapter.save_recipe;
 public class SaveRecipeState {
 	private boolean success;
 	private String message;
-	private String recipeName;
+	private final String recipeName;
 
 	public SaveRecipeState(boolean success, String message, String recipeName) {
 		this.success = success;
@@ -40,7 +40,4 @@ public class SaveRecipeState {
 		return recipeName;
 	}
 
-	public void setRecipeName(String recipeName) {
-		this.recipeName = recipeName;
-	}
 }

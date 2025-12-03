@@ -15,28 +15,30 @@ public class SaveRecipeInteractor implements SaveRecipeInputBoundary {
 
 	@Override
 	public void execute(SaveRecipeInputData saveRecipeInputData) {
-		String username = saveRecipeInputData.getUsername();
-		var recipe = saveRecipeInputData.getRecipe();
+		final String username = saveRecipeInputData.getUsername();
+		final var recipe = saveRecipeInputData.getRecipe();
 
 		try {
 			// Check if recipe is already saved
 			if (saveRecipeDataAccess.isRecipeSaved(username, recipe.getRecipeId())) {
-				saveRecipePresenter.prepareFailView("Recipe '" + recipe.getTitle() + "' is already saved!");
+                saveRecipePresenter.prepareFailView("Recipe '" + recipe.getTitle() + "' is already saved!");
 				return;
 			}
 
 			// Save the recipe
-			boolean success = saveRecipeDataAccess.saveRecipeForUser(username, recipe);
+			final boolean success = saveRecipeDataAccess.saveRecipeForUser(username, recipe);
 
 			if (success) {
-				SaveRecipeOutputData outputData = new SaveRecipeOutputData(true, "Recipe saved successfully!",
+                final SaveRecipeOutputData outputData = new SaveRecipeOutputData(true, "Recipe saved successfully!",
 						recipe.getTitle());
 				saveRecipePresenter.prepareSuccessView(outputData);
-			} else {
+			}
+            else {
 				saveRecipePresenter.prepareFailView("Failed to save recipe. Please try again.");
 			}
-		} catch (Exception e) {
-			saveRecipePresenter.prepareFailView("Error saving recipe: " + e.getMessage());
+		}
+        catch (Exception error) {
+			saveRecipePresenter.prepareFailView("Error saving recipe: " + error.getMessage());
 		}
 	}
 }

@@ -17,7 +17,7 @@ public class LogoutInteractor implements LogoutInputBoundary {
     
     @Override
     public void execute(LogoutInputData inputData) {
-        String username = inputData.getUsername();
+        final String username = inputData.getUsername();
         
         // Validate input
         if (username == null || username.trim().isEmpty()) {
@@ -33,11 +33,12 @@ public class LogoutInteractor implements LogoutInputBoundary {
             logoutDataAccess.updateLastLogout(username);
             
             // Prepare success response
-            LogoutOutputData outputData = new LogoutOutputData(
+            final LogoutOutputData outputData = new LogoutOutputData(
                 username, true, "Logged out successfully");
             presenter.prepareSuccessView(outputData);
             
-        } catch (Exception e) {
+        }
+        catch (Exception error) {
             presenter.prepareFailView("Logout failed due to system error");
         }
     }

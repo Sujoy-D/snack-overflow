@@ -8,11 +8,13 @@ public class LoginState {
     
     private String username = "";
     private String password = "";
-    private String errorMessage = null;
-    private boolean loginInProgress = false;
-    
-    public LoginState() {}
-    
+    private String errorMessage;
+    private boolean loginInProgress;
+
+    public LoginState() {
+
+    }
+
     public String getUsername() {
         return username;
     }
